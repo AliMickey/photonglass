@@ -1,16 +1,14 @@
 Installation
 ===========
 
-This guide covers both standard installation and Docker deployment options for the Looking Glass application.
+This guide covers Docker deployment options for photonglass.
 
 Requirements
 -----------
-* Python 3.7 or higher (for standard installation)
-* Node.js and npm (for standard installation)
-* Docker and Docker Compose (for Docker deployment)
+* Docker and Docker Compose
 * Network access to target devices
 
-Docker Deployment
+Deployment
 ---------------
 
 1. Clone the repository::
