@@ -1,0 +1,45 @@
+# Config files
+instance/
+
+docker-compose.yml
+
+# Static files
+app/static/images/**
+!app/static/images/
+!app/static/images/default-logo-dark.svg
+!app/static/images/default-logo-light.svg
+!app/static/images/default-favicon.svg
+
+# Python
+app/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# Node
+node_modules/
+dist/
+.npm
+app/static/css/styles.css
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# System
+.DS_Store
+Thumbs.db
+
