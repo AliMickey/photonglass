@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="icon" type="image/svg+xml" href="{{ config.site.favicon }}"/>
+        <link rel="apple-touch-icon" href="{{ config.site.favicon }}"/>
+        <title>{{ config.title }}</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.11.0/css/flag-icons.min.css"/>
+        <script>
+            // Initialize window.initialData for Vue
+            window.initialData = {
+                config: {{ config|tojson|safe }},
+                commands: {{ commands|tojson|safe }},
+                devices: {{ devices|tojson|safe }}
+            };
+
+            // Check for saved theme preference or default to 'light'
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+    </head>
+
+    <body class="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+        <div id="app" class="min-h-screen flex flex-col">
+            <div class="flex-grow w-full max-w-7xl px-4 mx-auto">
+                <div class="mt-8 mb-12 flex justify-center items-center">
+                    <a href="{{ config.logo.href }}" target="_blank" class="inline-block">
+                        <img src="{{ config.logo.light }}" alt="Logo" class="h-12 w-auto dark:hidden"/>
+                        <img src="{{ config.logo.dark }}" alt="Logo" class="h-12 w-auto hidden dark:block"/>
+                    </a>
+                </div>
+
+                <main>
+                    {% block content %}{% endblock %}
+                </main>
+            </div>
+
+            {% include 'footer.html' %}
+            
+        </div>
+
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </body>
+</html>
