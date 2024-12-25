@@ -50,7 +50,7 @@ def establish_connection(device_config):
         logger.error(f"Failed to establish connection to {device_config['host']}: {e}")
         raise
 
-def execute_command(device, command_config, target):
+def execute_command(device, command_format, target, ip_version):
     device_config = {
         'device_type': device['type'],
         'host': device['host'],
@@ -68,7 +68,8 @@ def execute_command(device, command_config, target):
     try:
         with establish_connection(device_config) as connection:
             # Format the command
-            command = str(command_config.get('format').format(target=target).strip())
+            print(command_format)
+            command = str(command_format.format(ip_version=ip_version, target=target).strip())
 
             # Execute the command
             output = connection.send_command(

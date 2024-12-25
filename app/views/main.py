@@ -25,27 +25,6 @@ def index():
     return render_template('index.html', config=config, devices=devices, commands=commands)
 
 
-@bp.route('/my-ip', methods=['GET'])
-@exception_handler
-def get_my_ip():
-    # Check headers in order of reliability
-    client_ip = None
-
-    forwarded_for = request.headers.get('X-Forwarded-For')
-    if forwarded_for:
-        client_ip = forwarded_for.split(',')[0].strip()
-
-    if not client_ip:
-        real_ip = request.headers.get('X-Real-IP')
-        if real_ip:
-            client_ip = real_ip
-
-    if not client_ip:
-        client_ip = request.remote_addr
-
-    return jsonify({'ip': client_ip})
-
-
 @bp.route('/execute', methods=['POST'])
 @exception_handler
 def execute():
@@ -53,8 +32,9 @@ def execute():
     device = data.get('device')
     command = data.get('command')
     target = data.get('target')
+    ip_version = data.get('ipVersion')
 
-    if not all([device, command, target]):
+    if not all([device, command, target, ip_version]):
         raise Exception("Missing required parameters")
 
     # Load configurations
@@ -72,9 +52,11 @@ def execute():
     if command['id'] not in device.get('commands', []):
         raise Exception("Command not allowed for this device")
 
+    ip_version = 6 if ip_version == "IPv6" else 4
+
     try:
         # Execute the command using network_utils
-        result = execute_command(device, command, target)
+        result = execute_command(device, command['format'], target, ip_version)
 
         if not result:
             error_msg = 'No response from command execution'

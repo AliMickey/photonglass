@@ -1,5 +1,5 @@
 
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim
 
 # Install Node.js
 RUN apt-get update && apt-get install -y nodejs npm \
@@ -16,7 +16,7 @@ COPY app/requirements.txt /app/
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Install Node.js dependencies and build TailwindCSS
-COPY package*.json /app/
+COPY app/package*.json /app/
 RUN npm install
 
 COPY app/ /app/

@@ -1,0 +1,8 @@
+{
+  "name": "photonglass",
+  "version": "1.0.0",
+  "description": "Looking Glass",
+  "dependencies": {
+    "tailwindcss": "^3.4.16"
+  }
+}

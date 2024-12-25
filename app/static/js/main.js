@@ -5,8 +5,8 @@ const app = Vue.createApp({
             selectedDevice: '',
             selectedCommand: '',
             targetIp: '',
+            selectedIpVersion: 'IPv4', // Default to IPv4
             isLoading: false,
-            isLoadingIp: false,
             commandResult: '',
             devices: window.initialData?.devices || [],
             commands: window.initialData?.commands || [],
@@ -22,23 +22,40 @@ const app = Vue.createApp({
     },
     mounted() {
         this.updateThemeClass();
-        // Make sure commands are loaded
-        if (window.initialData?.commands) {
-            console.log('Commands loaded:', this.commands);
-        }
     },
     watch: {
         selectedCommand: {
             handler(newVal) {
                 this.currentCommand = this.commands.find(cmd => cmd.id === newVal);
-                console.log("Current command updated:", this.currentCommand);
             },
             immediate: true
         }
     },
     computed: {
+        showIpVersionSelector() {
+            if (!this.targetIp) return true;
+
+            // Check if the input is not a valid IP address
+            const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){0,7}:([0-9a-fA-F]{1,4}:){0,7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+
+            // Detect IP version
+            if (ipv6Regex.test(this.targetIp)) {
+                this.selectedIpVersion = 'IPv6';
+                return false; // Disable button for valid IPv6
+            } else if (ipv4Regex.test(this.targetIp)) {
+                this.selectedIpVersion = 'IPv4';
+                return false; // Disable button for valid IPv4
+            }
+
+            return true; // Enable button for non-IP input
+        },
         isValidInput() {
             if (!this.currentCommand || !this.targetIp) return false;
+
+            // If IP version selector is shown, any input is valid as it will be resolved
+            if (this.showIpVersionSelector) return true;
+
             if (this.currentCommand.field?.validation) {
                 const pattern = new RegExp(this.currentCommand.field.validation);
                 return pattern.test(this.targetIp);
@@ -47,22 +64,8 @@ const app = Vue.createApp({
         }
     },
     methods: {
-        async getMyIp() {
-            if (this.isLoadingIp) return;
-            this.isLoadingIp = true;
-            try {
-                const response = await fetch('/my-ip');
-                const data = await response.json();
-                if (response.ok && data.ip) {
-                    this.targetIp = data.ip;
-                } else {
-                    console.error('Failed to get IP address');
-                }
-            } catch (error) {
-                console.error('Error fetching IP:', error);
-            } finally {
-                this.isLoadingIp = false;
-            }
+        toggleIpVersion() {
+            this.selectedIpVersion = this.selectedIpVersion === 'IPv4' ? 'IPv6' : 'IPv4';
         },
         toggleTheme() {
             this.isDark = !this.isDark;
@@ -80,7 +83,7 @@ const app = Vue.createApp({
             // Update the selected device state
             const wasDeselected = this.selectedDevice === device;
             this.selectedDevice = wasDeselected ? '' : device;
-            
+
             // Only reset states if we're deselecting the device entirely
             if (wasDeselected) {
                 this.selectedCommand = '';
@@ -111,12 +114,13 @@ const app = Vue.createApp({
                     body: JSON.stringify({
                         device: this.selectedDevice,
                         command: this.selectedCommand,
-                        target: this.targetIp
+                        target: this.targetIp,
+                        ipVersion: this.selectedIpVersion
                     })
                 });
 
                 const data = await response.json();
-                
+
                 if (!response.ok) {
                     this.commandResult = `❌ Error: ${data.message || 'An unknown error occurred'}`;
                     return;
@@ -125,10 +129,10 @@ const app = Vue.createApp({
                 if (data.error) {
                     // Handle error responses with specific error types
                     const errorPrefix = data.error_type === 'timeout' ? '🕒 Timeout Error: ' :
-                                      data.error_type === 'auth' ? '🔒 Authentication Error: ' :
-                                      data.error_type === 'connection' ? '🔌 Connection Error: ' :
-                                      data.error_type === 'no_output' ? '📭 No Output Error: ' :
-                                      '❌ Error: ';
+                                        data.error_type === 'auth' ? '🔒 Authentication Error: ' :
+                                        data.error_type === 'connection' ? '🔌 Connection Error: ' :
+                                        data.error_type === 'no_output' ? '📭 No Output Error: ' :
+                                        '❌ Error: ';
                     this.commandResult = errorPrefix + data.message;
                     return;
                 }
