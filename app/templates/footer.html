@@ -90,7 +90,7 @@
                     </button>
                 </div>
                 <div class="prose dark:prose-invert max-w-none">
-                    <p>By using this Looking Glass service, you agree to use the service responsibly and not for any malicious purposes, not attempt to overload or disrupt the service, respect the privacy and security measures in place.</p>
+                    <p class="text-gray-700 dark:text-gray-300">By using this Looking Glass service, you agree to use the service responsibly and not for any malicious purposes, not attempt to overload or disrupt the service, respect the privacy and security measures in place.</p>
                 </div>
             </div>
         </div>
@@ -103,73 +103,36 @@
         enter-to-class="opacity-100"
         leave-active-class="transition ease-in-out duration-150"
         leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-    >
+        leave-to-class="opacity-0">
         <div
             v-if="showHelp"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-        >
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div
-                class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full max-h-[80vh] flex flex-col transform transition-all duration-150"
-                :class="showHelp ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
-                @click.stop
-            >
-                <!-- Fixed Header -->
-                <div
-                    class="flex-none flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700"
-                >
-                    <h3
-                        class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
+                class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full p-6 transform transition-all duration-150"
+                :class="showHelp ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                         Available Commands
                     </h3>
-                    <button
-                        @click="showHelp = false"
-                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                        <svg
-                            class="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
+                    <button @click="showHelp = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
-                <!-- Scrollable Content -->
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">
-                        The following network diagnostic commands are
-                        available:
-                    </p>
-                    <div
-                        v-for="command in commands"
-                        :key="command.id"
-                        class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 last:pb-0"
-                    >
-                        <h4
-                            class="font-medium text-gray-900 dark:text-white capitalize mb-2 flex items-center"
-                        >
-                            <span
-                                class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-sm mr-3 font-mono hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-                                v-text="command.display_name"
-                            ></span>
-                        </h4>
-                        <div
-                            class="pl-2 border-l-2 border-gray-400 dark:border-gray-500"
-                        >
-                            <p
-                                class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-line"
-                                v-text="command.description || 'No description available'"
-                            ></p>
+                <div class="space-y-4">
+                    {% for command in commands %}
+                        <div class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 last:pb-0">
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">
+                                <p class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-sm font-mono">
+                                    {{ command.display_name }}
+                                </p>
+                            </h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm pl-2 border-l-2 border-gray-400 dark:border-gray-500">
+                                {{ command.description if command.description else 'No description available' }}
+                            </p>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
