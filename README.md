@@ -10,15 +10,15 @@ https://photonglass.dev
 
 ## Setup (Docker)
 1. Clone repository
-  - `git clone https://github.com/AliMickey/photonglass.git`
+    - `git clone https://github.com/AliMickey/photonglass.git`
 2. Create an instance folder to store your config and logos
-  - `cd photonglass`
-  - `mkdir instance`
-  - `mkdir instance/images`
+    - `cd photonglass`
+    - `mkdir instance`
+    - `mkdir instance/images`
 3. Create config files and upload logos (follow config template below)
 4. Create `docker-compose.yml` (follow template below)
 4. Build and deploy the container (inital build may take a minute)
-  - `docker compose up -d --build`
+    - `docker compose up -d --build`
 5. View the app at `http://IP_ADDRESS:5000`, recommend using a reverse proxy (traefik) for production use. 
 
 
