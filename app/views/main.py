@@ -16,6 +16,7 @@ def index():
     devices = load_yaml('devices')
     commands = load_yaml('commands')
 
+    # Remove sensitive data before passing to Jinja as additional security measure
     for device in devices:
         device.pop('username', None)
         device.pop('password', None)
@@ -25,6 +26,7 @@ def index():
     return render_template('index.html', config=config, devices=devices, commands=commands)
 
 
+# Route to handle command execution requests
 @bp.route('/execute', methods=['POST'])
 @exception_handler
 def execute():

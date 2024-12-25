@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link rel="icon" type="image/svg+xml" href="{{ config.site.favicon }}"/>
-        <link rel="apple-touch-icon" href="{{ config.site.favicon }}"/>
-        <title>{{ config.site.title }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}"/>
+        <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/favicon.svg') }}"/>
+        <title>{{ config.header.title }}</title>
         <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
         <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet"/>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.11.0/css/flag-icons.min.css"/>
@@ -30,9 +30,9 @@
         <div id="app" class="min-h-screen flex flex-col">
             <div class="flex-grow w-full max-w-7xl px-4 mx-auto">
                 <div class="mt-8 mb-12 flex justify-center items-center">
-                    <a href="{{ config.logo.href }}" target="_blank" class="inline-block">
-                        <img src="{{ config.logo.light }}" alt="Logo" class="h-12 w-auto dark:hidden"/>
-                        <img src="{{ config.logo.dark }}" alt="Logo" class="h-12 w-auto hidden dark:block"/>
+                    <a href="{{ config.header.logo_href }}" target="_blank" class="inline-block">
+                        <img src="{{ url_for('static', filename='images/logo-light.svg') }}" alt="Logo" class="h-12 w-auto dark:hidden"/>
+                        <img src="{{ url_for('static', filename='images/logo-dark.svg') }}" alt="Logo" class="h-12 w-auto hidden dark:block"/>
                     </a>
                 </div>
 

@@ -1,46 +1,84 @@
-# Looking Glass Network Management
+# photonglass
+A modern, distributed looking glass application that provides network insight for network operators.
 
-A modern web-based looking glass application that provides infrastructure monitoring and administration capabilities for network professionals. Built with Flask and Vue.js, this platform delivers real-time network analysis through an intuitive browser-based interface.
 
 ## Features
+-**Multi-Device Support**: Connect to multiple devices from one single interface.
+-**Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
 
-- 🌐 **Multi-Location Support**: Monitor network performance across different geographical locations
-- 🔍 **Network Diagnostics**: Execute common network commands (ping, traceroute, MTR)
-- 🎨 **Modern UI**: Clean, responsive interface with dark/light mode support
-- 🔒 **Secure Command Execution**: Built-in input validation and command sanitization
-- ⚡ **Real-Time Updates**: WebSocket-based live data streaming
-- 📱 **Responsive Design**: Optimized for both desktop and mobile devices
-- 🎯 **BGP Community Lookup**: Advanced BGP routing information
-- 🔄 **Docker Support**: Easy deployment with containerization
 
-## Quick Start
+## Setup (Docker)
+1. Clone repository
+    - `git clone https://github.com/AliMickey/photonglass.git`
+2. Create an instance folder to store your config and logos
+    - `cd photonglass`
+    - `mkdir instance`
+    - `mkdir instance/images`
+3. Create config files and upload logos (follow config template below)
+4. Edit `docker-compose.yml` if required (images path is commented out by default)
+4. Build and deploy the container
+    - `docker compose up -d --build`
+5. View the app at `http://IP_ADDRESS:5000`, recommend using a reverse proxy (traefik) for production use. 
 
-See our [installation guide](https://looking-glass.readthedocs.io/en/latest/installation.html) for detailed setup instructions.
-
-## Documentation
-
-Full documentation is available at [looking-glass.readthedocs.io](https://looking-glass.readthedocs.io/).
-
-Key documentation sections:
-- [Installation Guide](https://looking-glass.readthedocs.io/en/latest/installation.html)
-- [Configuration Options](https://looking-glass.readthedocs.io/en/latest/configuration.html)
-- [Usage Guide](https://looking-glass.readthedocs.io/en/latest/usage.html)
-- [API Documentation](https://looking-glass.readthedocs.io/en/latest/api.html)
 
 ## Configuration
+### instance/config.yaml
+```
+header:
+  title: "photonglass"
+  logo_href: "#"
 
-The application uses YAML configuration files for customization:
+footer:
+  text: "photonglass"
+  peeringdb_href: "https://www.peeringdb.com"
+  github_href: "https://github.com/alimickey"
 
-- `instance/config.yaml`: Core application settings
-- `instance/commands.yaml`: Network command definitions
-- `instance/devices.yaml`: Network device configurations
+```
 
-See the [configuration documentation](https://looking-glass.readthedocs.io/en/latest/configuration.html) for detailed options.
+### instance/commands.yaml
+```
+- id: "ping"
+  display_name: "Ping"
+  format: "ping -{ip_version} -c 4 {target}"
+  description: "Test network connectivity"
+  field:
+    type: "text"
+    placeholder: "Enter IP address or hostname"
 
-## Contributing
+- id: "traceroute"
+  display_name: "Traceroute"
+  format: "traceroute -{ip_version} {target}"
+  description: "Trace network path to destination"
+  field:
+    type: "text"
+    placeholder: "Enter IP address or hostname"
 
-Contributions are welcome! Please read our [contributing guidelines](https://looking-glass.readthedocs.io/en/latest/contributing.html) before submitting pull requests.
+- id: "mtr"
+  display_name: "MTR"
+  format: "mtr -{ip_version} -r {target}"
+  description: "Trace network path with stats"
+  field:
+    type: "text"
+    placeholder: "Enter IP address or hostname"
+```
 
-## License
+### instance/devices.yaml
+```
+- id: "unique-sydney"
+  display_name: "Sydney"
+  subtext: "Equinix SY3"
+  country_code: "AU"
+  type: "linux"
+  host: "IP_ADDRESS"
+  port: PORT
+  username: "USERNAME"
+  password: "PASSWORD"
+  commands:
+    - ping
+    - traceroute
+    - mtr
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Attribution
+This project was inspired by hyperglass after having difficulty deploying it. This project is not meant as a 1:1 replacement with hyperglass and as such is kept simple by design. At time of release only linux servers were tested as a target device, the same device library as hyperglass is used (netmiko) so compatibility with more devices should not be an issue, just be aware it is untested.

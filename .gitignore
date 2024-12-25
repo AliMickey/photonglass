@@ -1,14 +1,6 @@
 # Config files
-instance/
+instance/*
 
-docker-compose.yml
-
-# Static files
-app/static/images/**
-!app/static/images/
-!app/static/images/default-logo-dark.svg
-!app/static/images/default-logo-light.svg
-!app/static/images/default-favicon.svg
 
 # Python
 app/__pycache__/

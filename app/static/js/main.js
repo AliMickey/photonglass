@@ -5,7 +5,7 @@ const app = Vue.createApp({
             selectedDevice: '',
             selectedCommand: '',
             targetIp: '',
-            selectedIpVersion: 'IPv4', // Default to IPv4
+            selectedIpVersion: 'IPv4',
             isLoading: false,
             commandResult: '',
             devices: window.initialData?.devices || [],

@@ -1,0 +1,10 @@
+services:
+  photonglass:
+    container_name: photonglass
+    restart: unless-stopped
+    build: .
+    ports:
+      - 5000:5000
+    volumes:
+      - ./instance:/instance
+#      - ./instance/images:/app/static/images
