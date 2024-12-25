@@ -1,6 +1,7 @@
 # Config files
 instance/*
 
+docker-compose.yml
 
 # Python
 app/__pycache__/
