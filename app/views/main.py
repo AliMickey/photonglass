@@ -2,7 +2,8 @@ import logging
 
 from flask import Blueprint, request, render_template
 
-from app.functions.utils import exception_handler, load_yaml, send_webhook, get_client_ip, execute_command
+from app.functions.utils import exception_handler, load_yaml, send_webhook, get_client_ip
+from app.functions.netmiko import execute_command
 
 logger = logging.getLogger(__name__)
 
