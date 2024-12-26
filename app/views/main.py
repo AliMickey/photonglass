@@ -3,7 +3,7 @@ from flask import (
 )
 import logging
 
-from app.functions.utils import load_yaml, execute_command, exception_handler
+from app.functions.utils import exception_handler, load_yaml, execute_command, send_webhook
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ def index():
     commands = load_yaml('commands')
 
     # Remove sensitive data before passing to Jinja as additional security measure
-    for device in devices:
+    for device_key, device in devices.items():
         device.pop('username', None)
         device.pop('password', None)
         device.pop('host', None)
@@ -31,32 +31,33 @@ def index():
 @exception_handler
 def execute():
     data = request.get_json()
-    device = data.get('device')
-    command = data.get('command')
-    target = data.get('target')
-    ip_version = data.get('ipVersion')
+    input_device = data.get('device')
+    input_command = data.get('command')
+    input_target = data.get('target').strip()
+    input_ip_version = data.get('ipVersion')
 
-    if not all([device, command, target, ip_version]):
+    if not all([input_device, input_command, input_target, input_ip_version]):
         raise Exception("Missing required parameters")
 
     # Load configurations
-    devices = load_yaml('devices')
-    commands = load_yaml('commands')
-
-    # Find device and command configurations
-    device = next((d for d in devices if d['id'] == device), None)
-    command = next((c for c in commands if c['id'] == command), None)
+    device = load_yaml('devices', key=input_device)
+    command = load_yaml('commands', key=input_command)
+    webhook = load_yaml('config', key='webhook')
 
     if not device or not command:
         raise Exception("Device or command not found")
 
     # Verify command is allowed for this device
-    if command['id'] not in device.get('commands', []):
+    if input_command not in device.get('commands', []):
         raise Exception("Command not allowed for this device")
 
-    ip_version = 6 if ip_version == "IPv6" else 4
+    ip_version = 6 if input_ip_version == "IPv6" else 4
 
     # Execute the command using network_utils
-    result = execute_command(device, command['format'], target, ip_version)
+    result = execute_command(device, command['format'], input_target, ip_version)
+
+    # Send a webhook notification with client IP and command output
+    if not result['error'] and webhook:
+        send_webhook(webhook['url'], f"Client IP: `{request.remote_addr}`\nDevice: `{input_device}`\nCommand: `{input_command} {input_target}`")
 
     return result

@@ -1,8 +1,9 @@
-import os, yaml, logging
+import os, yaml, logging, requests
 from functools import wraps
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 
 logger = logging.getLogger(__name__)
+
 
 # Exception handler
 def exception_handler(func):
@@ -15,8 +16,10 @@ def exception_handler(func):
             return "An error occurred", 500
     return wrapper
 
+
+# Load YAML configuration file
 @exception_handler
-def load_yaml(filename):
+def load_yaml(filename, key=None):
     if not filename.endswith('.yaml'):
         filename = f"{filename}.yaml"
 
@@ -32,7 +35,13 @@ def load_yaml(filename):
             if data is None:
                 logger.warning(f"Empty configuration file: {filename}")
                 return {}
+            
+            # Return specific key if provided
+            if key:
+                return data.get(key, None)
+            
             return data
+        
     except yaml.YAMLError as e:
         logger.error(f"YAML parsing error in {filename}: {e}")
         return {}
@@ -41,6 +50,21 @@ def load_yaml(filename):
         return {}
     
 
+# Send data to a webhook URL
+@exception_handler
+def send_webhook(webhook_url, text_data):
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        "text": text_data
+    }
+
+    response = requests.post(webhook_url, json=payload, headers=headers)
+    response.raise_for_status()
+
+
+# Establish connection to network device
 def establish_connection(device_config):
     try:
         return ConnectHandler(**device_config)
@@ -48,6 +72,8 @@ def establish_connection(device_config):
         logger.error(f"Failed to establish connection to {device_config['host']}: {e}")
         raise
 
+
+# Execute command on network device
 def execute_command(device, command_format, target, ip_version):
     device_config = {
         'device_type': device['type'],

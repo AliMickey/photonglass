@@ -8,8 +8,9 @@ const app = Vue.createApp({
             selectedIpVersion: 'IPv4',
             isLoading: false,
             commandResult: '',
-            devices: window.initialData?.devices ?? [],
-            commands: window.initialData?.commands ?? [],
+            devices: window.initialData?.devices ?? {},
+            commands: window.initialData?.commands ?? {},
+            currentDevice: null,
             currentCommand: null,
             showHelp: false,
             showTerms: false,
@@ -23,15 +24,31 @@ const app = Vue.createApp({
     },
 
     watch: {
+        selectedDevice: {
+            handler(newVal) {
+                this.currentDevice = this.devices[newVal] || null;
+                if (!newVal) {
+                    this.resetCommandState();
+                }
+            },
+            immediate: true
+        },
         selectedCommand: {
             handler(newVal) {
-                this.currentCommand = this.commands.find(cmd => cmd.id === newVal);
+                this.currentCommand = this.commands[newVal] || null;
             },
             immediate: true
         }
     },
 
     computed: {
+        devicesList() {
+            return Object.entries(this.devices).map(([key, device]) => ({
+                key,
+                ...device
+            }));
+        },
+
         showIpVersionSelector() {
             if (!this.targetIp) return true;
 
@@ -82,15 +99,8 @@ const app = Vue.createApp({
             document.documentElement.classList[this.isDark ? 'add' : 'remove']('dark');
         },
 
-        toggleDevice(device) {
-            const wasDeselected = this.selectedDevice === device;
-            this.selectedDevice = wasDeselected ? '' : device;
-
-            if (wasDeselected) {
-                this.resetCommandState();
-            }
-
-            this.$nextTick(() => this.$forceUpdate());
+        toggleDevice(deviceKey) {
+            this.selectedDevice = this.selectedDevice === deviceKey ? '' : deviceKey;
         },
 
         resetCommandState() {
