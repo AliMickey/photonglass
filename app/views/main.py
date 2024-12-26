@@ -1,7 +1,6 @@
-from flask import (
-    Blueprint, request, render_template
-)
 import logging
+
+from flask import Blueprint, request, render_template
 
 from app.functions.utils import exception_handler, load_yaml, send_webhook, get_client_ip, execute_command
 
@@ -9,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 bp = Blueprint('main', __name__)
 
+
+# Route to render the main page
 @bp.route('/')
 @exception_handler
 def index():

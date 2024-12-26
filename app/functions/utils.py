@@ -1,6 +1,7 @@
 import os, yaml, logging, requests
 from functools import wraps
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+from flask import request
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ def send_webhook(webhook_url, text_data):
 
 # Get client IP address
 @exception_handler
-def get_client_ip(request):
+def get_client_ip():
     if not request.headers.getlist("X-Forwarded-For"):
         return request.remote_addr
     return request.headers.getlist("X-Forwarded-For")[0]
