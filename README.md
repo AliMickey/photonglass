@@ -9,6 +9,7 @@ https://photonglass.dev
 ## Features
 - **Multi Device Support**: Connect to multiple devices from one single interface.
 - **Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
+- **Webhook Logging**: Log queries to a webhook channel (optional).
 
 ## Setup (Docker)
 1. Clone repository
@@ -49,11 +50,14 @@ footer:
   text: "photonglass"
   peeringdb_href: "https://www.peeringdb.com"
   github_href: "https://github.com/alimickey"
+
+webhook:
+  url: "https://hooks.slack.com/###"
 ```
 
 ### instance/commands.yaml
 ```
-- id: "ping"
+ping:
   display_name: "Ping"
   format: "ping -{ip_version} -c 4 {target}"
   description: "Test network connectivity"
@@ -61,7 +65,7 @@ footer:
     type: "text"
     placeholder: "Enter IP address or hostname"
 
-- id: "traceroute"
+traceroute:
   display_name: "Traceroute"
   format: "traceroute -{ip_version} {target}"
   description: "Trace network path to destination"
@@ -69,7 +73,7 @@ footer:
     type: "text"
     placeholder: "Enter IP address or hostname"
 
-- id: "mtr"
+mtr:
   display_name: "MTR"
   format: "mtr -{ip_version} -r {target}"
   description: "Trace network path with stats"
@@ -80,7 +84,7 @@ footer:
 
 ### instance/devices.yaml
 ```
-- id: "unique-sydney"
+sydney1:
   display_name: "Sydney"
   subtext: "Equinix SY3"
   country_code: "AU"
