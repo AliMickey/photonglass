@@ -4,6 +4,9 @@ from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticati
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
+paramiko_logger = logging.getLogger("paramiko")
+paramiko_logger.setLevel(logging.WARNING)
+
 # Establish connection to network device
 def establish_connection(device_config):
     try:
