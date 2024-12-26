@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, request, jsonify, render_template
+    Blueprint, request, render_template
 )
 import logging
 
@@ -56,43 +56,7 @@ def execute():
 
     ip_version = 6 if ip_version == "IPv6" else 4
 
-    try:
-        # Execute the command using network_utils
-        result = execute_command(device, command['format'], target, ip_version)
+    # Execute the command using network_utils
+    result = execute_command(device, command['format'], target, ip_version)
 
-        if not result:
-            error_msg = 'No response from command execution'
-            logger.error(error_msg)
-            return jsonify({
-                'error': True,
-                'message': error_msg,
-                'error_type': 'no_response'
-            })
-
-        # Check for error state
-        if result.get('error', False):
-            error_msg = result['raw_output']
-            logger.error(f"Command execution failed: {error_msg}")
-            return jsonify({
-                'error': True,
-                'message': error_msg,
-                'error_type': result.get('error_type', 'general')
-            })
-
-        # Log successful execution
-        logger.info(f"Successfully executed command {command} on {device}")
-
-        # Return successful result
-        return jsonify({
-            'error': False,
-            'result': result['raw_output'],
-            'structured_data': result.get('structured_data')
-        })
-
-    except Exception as e:
-        logger.error(f"Unexpected error during command execution: {str(e)}")
-        return jsonify({
-            'error': True,
-            'message': f"An unexpected error occurred: {str(e)}",
-            'error_type': 'general'
-        })
+    return result

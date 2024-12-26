@@ -1,6 +1,4 @@
-import yaml
-import os
-import logging
+import os, yaml, logging
 from functools import wraps
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 
@@ -54,21 +52,20 @@ def execute_command(device, command_format, target, ip_version):
     device_config = {
         'device_type': device['type'],
         'host': device['host'],
+        'port': device['port'],
         'username': device['username'],
         'password': device['password'],
-        'port': device.get('port', 22),
-        'timeout': device.get('timeout', 10),
-        'session_timeout': device.get('session_timeout', 60),
-        'conn_timeout': device.get('conn_timeout', 10),
-        'auth_timeout': device.get('auth_timeout', 10),
+        'timeout': 10,
+        'session_timeout': 60,
+        'conn_timeout': 10,
+        'auth_timeout': 10,
     }
 
-    command_timeout = device.get('command_timeout', 30)
+    command_timeout = 30
 
     try:
         with establish_connection(device_config) as connection:
             # Format the command
-            print(command_format)
             command = str(command_format.format(ip_version=ip_version, target=target).strip())
 
             # Execute the command
@@ -82,45 +79,21 @@ def execute_command(device, command_format, target, ip_version):
 
             # Clean output
             output = output.strip() if output else ""
-            logger.debug(f"Command output: {output}")
 
             if not output:
-                return {
-                    'raw_output': "No output received from device",
-                    'structured_data': None,
-                    'error': True,
-                    'error_type': 'no_output'
-                }
+                logger.error(f"No response from {device['host']}")
+                return {'error': True, 'message': 'No response from device'}
 
-            return {
-                'raw_output': output,
-                'error': False
-            }
+            return {'error': False, 'message': output}
 
     except NetmikoTimeoutException as e:
-        error_msg = f"Timeout error on {device['host']}: {e}"
-        logger.error(error_msg)
-        return {
-            'raw_output': error_msg,
-            'structured_data': None,
-            'error': True,
-            'error_type': 'timeout'
-        }
+        logger.error(f"Timeout error on {device['host']}: {e}")
+        return {'error': True, 'message': 'Timeout error'}
+    
     except NetmikoAuthenticationException as e:
-        error_msg = f"Authentication failed for {device['host']}: {e}"
-        logger.error(error_msg)
-        return {
-            'raw_output': error_msg,
-            'structured_data': None,
-            'error': True,
-            'error_type': 'auth'
-        }
+        logger.error(f"Authentication failed for {device['host']}: {e}")
+        return {'error': True, 'message': 'Authentication failed'}
+    
     except Exception as e:
-        error_msg = f"An unexpected error occurred on {device['host']}: {e}"
-        logger.error(error_msg)
-        return {
-            'raw_output': error_msg,
-            'structured_data': None,
-            'error': True,
-            'error_type': 'connection'
-        }
+        logger.error(f"An unexpected error occurred on {device['host']}: {e}")
+        return {'error': True, 'message': 'Unexpected error'}

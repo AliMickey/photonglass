@@ -16,13 +16,6 @@
                 commands: {{ commands|tojson|safe }},
                 devices: {{ devices|tojson|safe }}
             };
-
-            // Check for saved theme preference or default to 'light'
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
         </script>
     </head>
 
