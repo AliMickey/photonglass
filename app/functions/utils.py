@@ -64,6 +64,14 @@ def send_webhook(webhook_url, text_data):
     response.raise_for_status()
 
 
+# Get client IP address
+@exception_handler
+def get_client_ip(request):
+    if not request.headers.getlist("X-Forwarded-For"):
+        return request.remote_addr
+    return request.headers.getlist("X-Forwarded-For")[0]
+
+
 # Establish connection to network device
 def establish_connection(device_config):
     try:

@@ -3,7 +3,7 @@ from flask import (
 )
 import logging
 
-from app.functions.utils import exception_handler, load_yaml, execute_command, send_webhook
+from app.functions.utils import exception_handler, load_yaml, send_webhook, get_client_ip, execute_command, 
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,7 @@ def execute():
 
     # Send a webhook notification with client IP and command output
     if not result['error'] and webhook:
-        send_webhook(webhook['url'], f"Client IP: `{request.remote_addr}`\nDevice: `{input_device}`\nCommand: `{input_command} -{ip_version} {input_target}`")
+        client_ip = get_client_ip(request)
+        send_webhook(webhook['url'], f"Client IP: `{client_ip}`\nDevice: `{input_device}`\nCommand: `{input_command} -{ip_version} {input_target}`")
 
     return result
