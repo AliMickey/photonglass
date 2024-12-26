@@ -59,7 +59,7 @@ def execute():
 
     # Send a webhook notification with client IP and command output
     if not result['error'] and webhook:
-        client_ip = get_client_ip(request)
+        client_ip = get_client_ip()
         send_webhook(webhook['url'], f"Client IP: `{client_ip}`\nDevice: `{input_device}`\nCommand: `{input_command} -{ip_version} {input_target}`")
 
     return result
