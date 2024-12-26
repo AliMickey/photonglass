@@ -19,6 +19,7 @@ https://photonglass.dev
     - `cd photonglass`
     - `mkdir instance`
     - `mkdir instance/images`
+    - `mkdir instance/ssh-keys` # Optional
 3. Create config files and upload logos/favicon (follow config template below)
 4. Create `docker-compose.yml` (follow template below)
 4. Build and deploy the container (inital build may take a minute)
@@ -94,6 +95,7 @@ sydney1:
   port: PORT
   username: "USERNAME"
   password: "PASSWORD"
+  ssh_key: "id_rsa" # Optional
   commands:
     - ping
     - traceroute
