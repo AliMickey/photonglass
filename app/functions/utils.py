@@ -3,6 +3,7 @@ from functools import wraps
 from flask import request
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 
 # Exception handler
@@ -33,7 +34,7 @@ def load_yaml(filename, key=None):
         with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
             if data is None:
-                logger.warning(f"Empty configuration file: {filename}")
+                logger.error(f"Empty configuration file: {filename}")
                 return {}
             
             # Return specific key if provided

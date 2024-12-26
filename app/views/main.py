@@ -6,6 +6,7 @@ from app.functions.utils import exception_handler, load_yaml, send_webhook, get_
 from app.functions.netmiko import execute_command
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 bp = Blueprint('main', __name__)
 

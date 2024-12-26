@@ -2,6 +2,7 @@ import logging, os
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 # Establish connection to network device
 def establish_connection(device_config):
