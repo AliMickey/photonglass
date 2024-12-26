@@ -8,7 +8,7 @@ A modern, distributed looking glass application that provides network insight fo
 - **Multi Device Support**: Connect to multiple devices from one single interface.
 - **Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
 - **Webhook Logging**: Log queries to a webhook channel (optional).
-- **Rate Limiting**: Reduce service abuse by rate limiting users, 100 per day and 10 per minute.
+- **Rate Limiting**: Reduce service abuse by rate limiting users, 100 requests per day and 10 requests per minute by default.
 
 
 ## Public Instances
