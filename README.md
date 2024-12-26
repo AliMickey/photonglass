@@ -13,11 +13,11 @@ https://photonglass.dev
 ## Setup (Docker)
 1. Clone repository
     - `git clone https://github.com/AliMickey/photonglass.git`
-2. Create an instance folder to store your config and logos
+2. Create an instance folder to store your config and logos/favicon
     - `cd photonglass`
     - `mkdir instance`
     - `mkdir instance/images`
-3. Create config files and upload logos (follow config template below)
+3. Create config files and upload logos/favicon (follow config template below)
 4. Create `docker-compose.yml` (follow template below)
 4. Build and deploy the container (inital build may take a minute)
     - `docker compose up -d --build`
