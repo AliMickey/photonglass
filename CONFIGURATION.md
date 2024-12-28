@@ -1,4 +1,11 @@
 ## Configuration
+### Logos and favicon
+If you wish to use custom assets, create the images folder under /instance, map it in docker-compose.yml and use the following filenames:
+  - favicon.svg
+  - logo-dark.svg
+  - logo-light.svg
+
+
 ### docker-compose.yml
 ```
 services:
@@ -21,8 +28,8 @@ header:
 
 footer:
   text: "photonglass"
-  peeringdb_href: "https://www.peeringdb.com"
-  github_href: "https://github.com/alimickey"
+  peeringdb_href: "https://www.peeringdb.com/net/xxx"
+  github_href: "https://github.com/alimickey/photonglass"
 ```
 
 ### instance/config.yaml
