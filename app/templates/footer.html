@@ -4,7 +4,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
                 <div class="flex items-center">
                     <span class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ site.footer.text }} - v1.0.0
+                        {{ site.footer.text }} - v1.0.1
                     </span>
                 </div>
 
@@ -121,7 +121,7 @@
                     </button>
                 </div>
                 <div class="space-y-4">
-                    {% for command in commands %}
+                    {% for command in commands.values() %}
                         <div class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 last:pb-0">
                             <h4 class="font-medium text-gray-900 dark:text-white mb-2">
                                 <p class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-sm font-mono">

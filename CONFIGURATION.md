@@ -43,7 +43,7 @@ webhook:
 ping:
   display_name: "Ping"
   format: "ping -{ip_version} -c 4 {target}"
-  description: "Test network connectivity"
+  description: "Performs ping with 4 ICMP requests to target"
   field:
     type: "text"
     placeholder: "Enter IP address or hostname"
@@ -51,7 +51,7 @@ ping:
 traceroute:
   display_name: "Traceroute"
   format: "traceroute -{ip_version} {target}"
-  description: "Trace network path to destination"
+  description: "Performs traceroute to target"
   field:
     type: "text"
     placeholder: "Enter IP address or hostname"
@@ -59,7 +59,7 @@ traceroute:
 mtr:
   display_name: "MTR"
   format: "mtr -{ip_version} -r {target}"
-  description: "Trace network path with stats"
+  description: "Performs MTR to target"
   field:
     type: "text"
     placeholder: "Enter IP address or hostname"

@@ -30,7 +30,13 @@ const app = Vue.createApp({
                 if (!newVal) {
                     this.resetCommandState();
                 }
+                // Check if the current command is valid for the new device
+                const validCommands = this.currentDevice?.commands || [];
+                if (!validCommands.includes(this.selectedCommand)) {
+                    this.selectedCommand = ''; // Reset command if invalid
+                }
             },
+            
             immediate: true
         },
         selectedCommand: {
@@ -46,6 +52,14 @@ const app = Vue.createApp({
             return Object.entries(this.devices).map(([key, device]) => ({
                 key,
                 ...device
+            }));
+        },
+
+        filteredCommands() {
+            if (!this.currentDevice) return [];
+            return this.currentDevice.commands.map(commandKey => ({
+                key: commandKey,
+                ...this.commands[commandKey]
             }));
         },
 
