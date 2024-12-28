@@ -18,11 +18,13 @@ def establish_connection(device_config):
 
 # Execute command on network device
 def execute_command(device, command_format, target, ip_version):
+    device_credentials = device['credentials']
+
     device_config = {
         'device_type': device['type'],
-        'host': device['host'],
-        'port': device['port'],
-        'username': device['username'],
+        'host': device_credentials['host'],
+        'port': device_credentials['port'],
+        'username': device_credentials['username'],
         'timeout': 10,
         'session_timeout': 60,
         'conn_timeout': 10,
@@ -30,22 +32,22 @@ def execute_command(device, command_format, target, ip_version):
     }
 
     # Use SSH key if provided
-    if "ssh_key" in device:
-        key_path = os.path.join("/instance/ssh-keys", device['ssh_key'])
+    if "ssh_key" in device_credentials:
+        key_path = os.path.join("/instance/ssh-keys", device_credentials['ssh_key'])
 
         if not os.path.exists(key_path):
-            logger.error(f"SSH file not found: {key_path} for {device['host']}")
+            logger.error(f"SSH file not found: {key_path} for {device_credentials['host']}")
             return {'error': True, 'message': 'Authentication failed'}
         
         device_config['use_keys'] = True
-        device_config['key_file'] =  os.path.join("/instance/ssh-keys", device['ssh_key'])
+        device_config['key_file'] =  os.path.join("/instance/ssh-keys", device_credentials['ssh_key'])
 
     else:
-        device_config['password'] = device['password']
+        device_config['password'] = device_credentials['password']
 
-    command_timeout = 30
 
     try:
+        command_timeout = 30
         with establish_connection(device_config) as connection:
             # Format the command
             command = str(command_format.format(ip_version=ip_version, target=target).strip())

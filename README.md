@@ -6,6 +6,7 @@ A modern, distributed looking glass application that provides network insight fo
 
 ## Features
 - **Multi Device Support**: Connect to multiple devices from one single interface.
+- **Custom Command Support**: Built dynamically to support any custom command. Defaults are [ping, traceroute, mtr]
 - **Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
 - **Webhook Logging**: Log queries to a webhook channel (optional).
 - **Rate Limiting**: Reduce service abuse by rate limiting users, 100 requests per day and 10 requests per minute by default.
@@ -32,9 +33,9 @@ If you wish to list your instance on this list, please open a Github issue.
     - Refer to [CONFIGURATION.md](CONFIGURATION.md)
 4. Create `docker-compose.yml`
     - Refer to [CONFIGURATION.md](CONFIGURATION.md)
-4. Build and deploy the container (inital build may take a minute)
+5. Build and deploy the container (inital build may take a minute)
     - `docker compose up -d --build`
-5. View the app at `http://IP_ADDRESS:5000`, recommend using a reverse proxy (traefik) for production use. 
+6. View the app at `http://IP_ADDRESS:5000`, recommend using a reverse proxy (traefik) for production use. 
 
 
 ## Attribution

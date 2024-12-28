@@ -13,7 +13,7 @@ services:
 #      - ./instance/images:/app/static/images # Commented out by default to use default logos
 ```
 
-### instance/config.yaml
+### instance/site.yaml
 ```
 header:
   title: "photonglass"
@@ -23,7 +23,10 @@ footer:
   text: "photonglass"
   peeringdb_href: "https://www.peeringdb.com"
   github_href: "https://github.com/alimickey"
+```
 
+### instance/config.yaml
+```
 webhook:
   url: "https://hooks.slack.com/###"
 ```
@@ -62,15 +65,14 @@ sydney1:
   subtext: "Equinix SY3"
   country_code: "AU"
   type: "linux"
-  host: "IP_ADDRESS"
-  port: PORT
-  username: "USERNAME"
-  password: "PASSWORD"
-  ssh_key: "id_rsa" # Optional
   commands:
     - ping
     - traceroute
     - mtr
+  credentials:
+    host: "IP_ADDRESS"
+    port: PORT
+    username: "USERNAME"
+    password: "PASSWORD"
+    ssh_key: "id_rsa" # Optional
 ```
-
-

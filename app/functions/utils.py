@@ -1,4 +1,4 @@
-import os, yaml, logging, requests
+import logging, requests
 from functools import wraps
 from flask import request
 
@@ -16,39 +16,6 @@ def exception_handler(func):
             logging.exception(f"Exception occurred in {func.__name__}")
             return "An error occurred", 500
     return wrapper
-
-
-# Load YAML configuration file
-@exception_handler
-def load_yaml(filename, key=None):
-    if not filename.endswith('.yaml'):
-        filename = f"{filename}.yaml"
-
-    config_path = os.path.join("/instance", filename)
-
-    if not os.path.exists(config_path):
-        logger.error(f"Configuration file not found: {config_path}")
-        return {}
-
-    try:
-        with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
-            if data is None:
-                logger.error(f"Empty configuration file: {filename}")
-                return {}
-            
-            # Return specific key if provided
-            if key:
-                return data.get(key, None)
-            
-            return data
-        
-    except yaml.YAMLError as e:
-        logger.error(f"YAML parsing error in {filename}: {e}")
-        return {}
-    except Exception as e:
-        logger.error(f"Unexpected error loading {filename}: {e}")
-        return {}
     
 
 # Send data to a webhook URL
