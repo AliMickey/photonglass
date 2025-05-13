@@ -1,6 +1,6 @@
 import logging, requests, ipaddress, validators
 from functools import wraps
-from flask import request
+from flask import request, current_app
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -14,6 +14,7 @@ def exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
+            send_webhook(current_app.config['CONFIG'].get('webhook'), str(e))
             return "An error occurred", 500
     return wrapper
     
