@@ -1,4 +1,4 @@
-import logging, requests
+import logging, requests, ipaddress, validators
 from functools import wraps
 from flask import request
 
@@ -38,3 +38,16 @@ def get_client_ip():
     if not request.headers.getlist("X-Forwarded-For"):
         return request.remote_addr
     return request.headers.getlist("X-Forwarded-For")[0]
+
+
+# Validate if the target string is a valid IP address or domain
+@exception_handler
+def is_target_valid(target_string):
+    try:
+        ipaddress.ip_address(target_string)
+        return True
+    except ValueError:
+        if validators.domain(target_string):
+            return True
+        else:
+            return False

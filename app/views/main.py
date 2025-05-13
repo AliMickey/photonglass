@@ -2,7 +2,7 @@ import logging
 from copy import deepcopy
 from flask import Blueprint, request, render_template, current_app
 
-from app.functions.utils import exception_handler, send_webhook, get_client_ip
+from app.functions.utils import exception_handler, send_webhook, get_client_ip, is_target_valid
 from app.functions.netmiko import execute_command
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,10 @@ def execute():
 
     if not all([input_device, input_command, input_target, input_ip_version]):
         raise Exception("Missing required parameters")
+    
+    # Validate target IP address
+    if not is_target_valid(input_target):
+        raise Exception("Invalid target")
 
     device = current_app.config['DEVICES'].get(input_device, {})
     command = current_app.config['COMMANDS'].get(input_command, {})
