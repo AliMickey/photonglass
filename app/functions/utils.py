@@ -21,15 +21,19 @@ def exception_handler(func):
 
 # Send data to a webhook URL
 def send_webhook(webhook_url, text_data):
-    headers = {
-        'Content-Type': 'application/json'
-    }
-    payload = {
-        "text": text_data
-    }
+    try:
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "text": text_data
+        }
 
-    response = requests.post(webhook_url, json=payload, headers=headers)
-    response.raise_for_status()
+        response = requests.post(webhook_url, json=payload, headers=headers)
+        response.raise_for_status()
+    
+    except Exception as e:
+        logger.error(f"Failed to send webhook: {e}")
 
 
 # Get client IP address
