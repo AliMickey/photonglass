@@ -17,7 +17,6 @@ If you wish to list your instance on this list, please open a Github issue.
 
 | Organisation | Instance URL |
 |------------------|-----------------|
-| Demo | https://photonglass.dev |
 | Host Universal | https://lg.hostuniversal.com.au |
 
 
