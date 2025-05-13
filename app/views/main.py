@@ -41,7 +41,7 @@ def execute():
     
     # Validate target IP address
     if not is_target_valid(input_target):
-        raise Exception("Invalid target")
+        raise Exception(f"Invalid target: '{input_target}'")
 
     device = current_app.config['DEVICES'].get(input_device, {})
     command = current_app.config['COMMANDS'].get(input_command, {})
