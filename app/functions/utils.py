@@ -14,13 +14,12 @@ def exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
-            send_webhook(current_app.config['CONFIG'].get('webhook'), str(e))
+            send_webhook(current_app.config['CONFIG'].get('webhook')['url'], str(e))
             return "An error occurred", 500
     return wrapper
     
 
 # Send data to a webhook URL
-@exception_handler
 def send_webhook(webhook_url, text_data):
     headers = {
         'Content-Type': 'application/json'
