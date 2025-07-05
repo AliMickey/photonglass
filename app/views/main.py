@@ -39,12 +39,12 @@ def execute():
     if not all([input_device, input_command, input_target, input_ip_version]):
         raise Exception("Missing required parameters")
     
-    validated_target = get_validated_target(input_target)
+    target_valid, value = get_validated_target(input_target)
 
-    if not validated_target:
-        raise Exception(f"Invalid target: '{input_target}'")
+    if not target_valid:
+        raise Exception(f"{value}: '{input_target}'")
 
-    clean_target = str(validated_target)
+    clean_target = str(value)
 
     device = current_app.config['DEVICES'].get(input_device, {})
     command = current_app.config['COMMANDS'].get(input_command, {})

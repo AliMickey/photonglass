@@ -48,18 +48,18 @@ def get_client_ip():
 @exception_handler
 def get_validated_target(target_string):
     if len(target_string) > 255:
-        raise ValueError(f"Validation failed: Input exceeds max length.")
+        return False, "Input exceeds max length"
     
     try:
         ip_obj = ipaddress.ip_address(target_string)
 
         if not ip_obj.is_global:
-            raise ValueError(f"Validation failed: Non-global IP address provided.")
+            return False, "Non-global IP address provided"
 
-        return ip_obj
+        return True, ip_obj
 
     except ValueError:
         if not validators.domain(target_string):
-            raise ValueError(f"Validation failed: Input is not a valid IP or domain.")
+            return False, "Input is not a valid IP or domain"
 
-        return target_string
+        return True, target_string
