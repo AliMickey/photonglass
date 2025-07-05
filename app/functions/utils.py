@@ -15,7 +15,7 @@ def exception_handler(func):
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
             send_webhook(current_app.config['CONFIG'].get('webhook')['url'], f"Exception: `{str(e)}`")
-            return "An error occurred", 500
+            return None
     return wrapper
     
 
