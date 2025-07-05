@@ -38,4 +38,4 @@ If you wish to list your instance on this list, please open a Github issue.
 
 
 ## Attribution
-This project was inspired by [hyperglass](https://hyperglass.dev/) after having difficulty deploying it as well as being overkill for what I wanted. This project is not meant as a 1:1 replacement with hyperglass and as such is kept simple by design. At time of release only Linux servers were tested as a target device, the same device library as hyperglass is used (netmiko) so compatibility with more devices should not be an issue, just be aware it is untested.
+This project was inspired by [hyperglass](https://hyperglass.dev/) after having difficulty deploying it, as well as being overkill for what I wanted. This project is not meant as a 1:1 replacement with hyperglass and as such is kept simple by design. At time of release only Linux servers were tested as a target device, the same device library as hyperglass is used (netmiko) so compatibility with more devices should not be an issue, just be aware it is untested.

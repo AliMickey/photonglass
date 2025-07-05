@@ -125,7 +125,7 @@ const app = Vue.createApp({
 
         async executeCommand() {
             if (!this.isValidInput) {
-                this.commandResult = '❌ Error: Please enter a valid input.';
+                this.commandResult = 'Error: Please enter a valid input.';
                 return;
             }
         
@@ -147,7 +147,7 @@ const app = Vue.createApp({
                 const data = await response.json();
         
                 if (!response.ok || data.error) {
-                    this.commandResult = `Error: ${data.message || 'An error occurred.'}`;
+                    this.commandResult = 'Error: An error occurred.';
                     return;
                 }
         
