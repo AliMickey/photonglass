@@ -21,7 +21,7 @@
                             {% endif %}
                         </div>
                         {% if device.country_code %}
-                            <span class="fi fi-{{ device.country_code | lower }} flex-shrink-0 border border-gray-200 dark:border-gray-900"></span>
+                            <span class="fi fi-{{ device.country_code | lower }} flex-shrink-0 rounded-sm ring-1 ring-gray-900/10 dark:ring-white/10"></span>
                         {% endif %}
                     </button>
                 {% endfor %}
