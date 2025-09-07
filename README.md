@@ -12,14 +12,6 @@ A modern, simple, distributed looking glass application that provides network in
 - **Rate Limiting**: Reduce service abuse by rate limiting users, 100 requests per day and 10 requests per minute by default.
 
 
-## Public Instances
-If you wish to list your instance on this list, please open a Github issue.
-
-| Organisation | Instance URL |
-|------------------|-----------------|
-| Host Universal | https://lg.hostuniversal.com.au |
-
-
 ## Setup (Docker)
 1. Clone repository
     - `git clone https://github.com/AliMickey/photonglass.git`
