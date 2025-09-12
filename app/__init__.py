@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 limiter = Limiter(
     get_client_ip, 
-    default_limits=["100 per day", "10 per minute"],
+    default_limits=["10 per minute"],
     storage_uri="memory://"
 )
 
