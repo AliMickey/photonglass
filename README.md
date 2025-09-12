@@ -9,7 +9,6 @@ A modern, simple, distributed looking glass application that provides network in
 - **Custom Command Support**: Built dynamically to support any custom command.
 - **Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
 - **Webhook Logging**: Log queries to a webhook channel (optional).
-- **Rate Limiting**: Reduce service abuse by rate limiting users, 100 requests per day and 10 requests per minute by default.
 
 
 ## Setup (Docker)
