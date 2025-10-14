@@ -65,19 +65,19 @@ def execute_command(device, command_format, target, ip_version):
             output = output.strip() if output else ""
 
             if not output:
-                logger.error(f"No response from {device['host']}")
+                logger.error(f"No response from {device_config['host']}")
                 return {'error': True, 'message': 'No response from device'}
 
             return {'error': False, 'message': output}
 
     except NetmikoTimeoutException as e:
-        logger.error(f"Timeout error on {device['host']}: {e}")
+        logger.error(f"Timeout error on {device_config['host']}: {e}")
         return {'error': True, 'message': 'Timeout error'}
     
     except NetmikoAuthenticationException as e:
-        logger.error(f"Authentication failed for {device['host']}: {e}")
+        logger.error(f"Authentication failed for {device_config['host']}: {e}")
         return {'error': True, 'message': 'Authentication failed'}
     
     except Exception as e:
-        logger.error(f"An unexpected error occurred on {device['host']}: {e}")
+        logger.error(f"An unexpected error occurred on {device_config['host']}: {e}")
         return {'error': True, 'message': 'Unexpected error'}
