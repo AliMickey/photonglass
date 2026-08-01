@@ -15,6 +15,7 @@ const app = Vue.createApp({
             showHelp: false,
             showTerms: false,
             expandedDevice: null,
+            expandedPlaceholder: 0,
             isOpen: false,
             highlightedIndex: -1,
             lastFocused: null,
@@ -215,14 +216,38 @@ const app = Vue.createApp({
         },
 
         toggleExpand(deviceKey) {
+            const card = [...(this.$refs.results?.querySelectorAll('[data-panel]') ?? [])].find(el => el.dataset.panel === deviceKey);
+            const from = card?.getBoundingClientRect();
+
             if (this.expandedDevice === deviceKey) {
                 this.expandedDevice = null;
-                return;
+            } else {
+                const result = this.results[deviceKey];
+                if (result) result.collapsed = false;
+                // Holds the grid slot open so the other cards do not reflow
+                if (from) this.expandedPlaceholder = from.height;
+                this.expandedDevice = deviceKey;
             }
 
-            const result = this.results[deviceKey];
-            if (result) result.collapsed = false;
-            this.expandedDevice = deviceKey;
+            if (from) this.$nextTick(() => this.morphCard(card, from));
+        },
+
+        // The card snaps straight to its new box, so replay the old box as a transform
+        morphCard(card, from) {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            const to = card.getBoundingClientRect();
+            if (!to.width || !to.height) return;
+
+            card.getAnimations().forEach(animation => animation.cancel());
+
+            card.animate([
+                {
+                    transformOrigin: 'top left',
+                    transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`
+                },
+                { transformOrigin: 'top left', transform: 'none' }
+            ], { duration: 240, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
         },
 
         async copyResult(deviceKey) {
