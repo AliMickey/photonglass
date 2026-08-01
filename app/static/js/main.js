@@ -14,6 +14,7 @@ const app = Vue.createApp({
             currentCommand: null,
             showHelp: false,
             showTerms: false,
+            expandedDevice: null,
             isOpen: false,
             highlightedIndex: -1,
             lastFocused: null,
@@ -38,6 +39,10 @@ const app = Vue.createApp({
         },
         showTerms(isOpen) {
             this.syncModalFocus(isOpen);
+        },
+        expandedDevice(deviceKey) {
+            document.body.classList.toggle('overflow-hidden', Boolean(deviceKey));
+            this.syncModalFocus(Boolean(deviceKey));
         },
         selectedDevices: {
             handler(newVal) {
@@ -191,6 +196,7 @@ const app = Vue.createApp({
             this.targetIp = '';
             this.results = {};
             this.resultOrder = [];
+            this.expandedDevice = null;
         },
 
         finishPendingResults(message) {
@@ -206,6 +212,17 @@ const app = Vue.createApp({
         toggleResult(deviceKey) {
             const result = this.results[deviceKey];
             if (result) result.collapsed = !result.collapsed;
+        },
+
+        toggleExpand(deviceKey) {
+            if (this.expandedDevice === deviceKey) {
+                this.expandedDevice = null;
+                return;
+            }
+
+            const result = this.results[deviceKey];
+            if (result) result.collapsed = false;
+            this.expandedDevice = deviceKey;
         },
 
         async copyResult(deviceKey) {
@@ -241,6 +258,7 @@ const app = Vue.createApp({
         
             this.isLoading = true;
             this.resultOrder = [...this.selectedDevices];
+            this.expandedDevice = null;
             this.results = Object.fromEntries(
                 this.resultOrder.map(deviceKey => [deviceKey, { output: '', error: '', done: false, collapsed: false, copied: false }])
             );
@@ -369,10 +387,11 @@ const app = Vue.createApp({
                 this.isOpen = false;
                 this.showHelp = false;
                 this.showTerms = false;
+                this.expandedDevice = null;
                 return;
             }
 
-            if (event.key === 'Tab' && (this.showHelp || this.showTerms)) {
+            if (event.key === 'Tab' && (this.showHelp || this.showTerms || this.expandedDevice)) {
                 this.trapFocus(event);
             }
         },

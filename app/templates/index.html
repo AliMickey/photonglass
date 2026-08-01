@@ -178,6 +178,18 @@
 
         <!-- Results -->
         <p class="sr-only" role="status" aria-live="polite">${resultStatus}</p>
+        <transition
+            enter-active-class="transition-opacity ease-in-out duration-200"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity ease-in-out duration-200"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="expandedDevice"
+                 @click="expandedDevice = null"
+                 aria-hidden="true"
+                 class="fixed inset-0 z-40 bg-gray-900/70 backdrop-blur-sm"></div>
+        </transition>
         <div v-if="resultPanels.length"
              ref="results"
              role="region"
@@ -185,8 +197,12 @@
              class="mb-8 w-full grid gap-4 items-start"
              :class="resultPanels.length > 1 ? 'md:grid-cols-2' : 'grid-cols-1'">
             <div v-for="panel in resultPanels" :key="panel.key"
-                 class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
-                <div class="flex items-stretch border-gray-200 dark:border-gray-700"
+                 :data-modal="expandedDevice === panel.key ? '' : null"
+                 :role="expandedDevice === panel.key ? 'dialog' : null"
+                 :aria-modal="expandedDevice === panel.key ? 'true' : null"
+                 :class="['bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-hidden',
+                          expandedDevice === panel.key ? 'fixed inset-2 sm:inset-4 z-50 flex flex-col shadow-2xl' : '']">
+                <div class="flex flex-shrink-0 items-stretch border-gray-200 dark:border-gray-700"
                      :class="{'border-b': !panel.collapsed}">
                     <button type="button"
                             @click="toggleResult(panel.key)"
@@ -227,8 +243,21 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
                     </button>
+                    <button type="button"
+                            @click="toggleExpand(panel.key)"
+                            :aria-label="(expandedDevice === panel.key ? 'Exit fullscreen view of ' : 'Expand ') + (panel.device.display_name || panel.key)"
+                            class="px-3 flex items-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-500 transition-colors duration-200 ease-in-out">
+                        <svg v-if="expandedDevice === panel.key" class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+                        </svg>
+                        <svg v-else class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>
+                    </button>
                 </div>
-                <pre v-show="!panel.collapsed" class="p-4 max-h-96 text-gray-800 dark:text-gray-300 font-mono text-sm overflow-auto whitespace-pre break-words">${panel.error || panel.output}</pre>
+                <pre v-show="!panel.collapsed"
+                     :class="['p-4 text-gray-800 dark:text-gray-300 font-mono text-sm overflow-auto whitespace-pre break-words',
+                              expandedDevice === panel.key ? 'flex-1 min-h-0' : 'max-h-96']">${panel.error || panel.output}</pre>
             </div>
         </div>
     </div>
