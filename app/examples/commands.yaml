@@ -16,7 +16,7 @@ traceroute:
 
 mtr:
   display_name: "MTR"
-  format: "mtr -{ip_version} -r {target}"
+  format: "mtr -{ip_version} -rwbz {target}"
   description: "Performs MTR to target"
   field:
     type: "text"
