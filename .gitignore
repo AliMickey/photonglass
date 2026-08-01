@@ -2,6 +2,7 @@
 instance
 
 docker-compose.yml
+compose.yml
 
 # Python
 app/__pycache__/
