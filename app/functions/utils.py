@@ -29,7 +29,7 @@ def send_webhook(webhook_url, text_data):
             "text": text_data
         }
 
-        response = requests.post(webhook_url, json=payload, headers=headers)
+        response = requests.post(webhook_url, json=payload, headers=headers, timeout=(3, 5))
         response.raise_for_status()
     
     except Exception as e:

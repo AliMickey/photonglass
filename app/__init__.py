@@ -1,4 +1,4 @@
-import logging, yaml, os
+import logging, shutil, yaml, os
 from flask import Flask
 from flask_limiter import Limiter
 
@@ -19,14 +19,15 @@ def create_app():
     limiter.init_app(app)
     
     config_files = ['config.yaml', 'site.yaml', 'devices.yaml', 'commands.yaml']
+    examples_path = os.path.join(os.path.dirname(__file__), "examples")
 
     for config_file in config_files:
         config_path = os.path.join("/instance", config_file)
 
-        # Create empty config files if they don't exist
+        # Seed missing config files from the bundled examples
         if not os.path.exists(config_path):
-            with open(config_path, "w") as f:
-                pass
+            shutil.copyfile(os.path.join(examples_path, config_file), config_path)
+            logger.info(f"Created {config_path} from the example config")
         
         # Load the config files into the app config
         with open(config_path, 'r') as file:

@@ -1,0 +1,8 @@
+services:
+  photonglass:
+    container_name: photonglass
+    build: .
+    ports:
+      - 5000:5000
+    volumes:
+      - ./instance:/instance

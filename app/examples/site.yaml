@@ -1,0 +1,11 @@
+header:
+  title: "photonglass"
+  logo_href: "#"
+  logo_light: "logo-light.svg"
+  logo_dark: "logo-dark.svg"
+  favicon: "favicon.svg"
+
+footer:
+  text: "photonglass"
+  peeringdb_href: "https://www.peeringdb.com/net/xxx"
+  github_href: "https://github.com/alimickey/photonglass"

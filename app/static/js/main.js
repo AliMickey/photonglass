@@ -2,38 +2,52 @@ const app = Vue.createApp({
     delimiters: ['${', '}'],
     data() {
         return {
-            selectedDevice: '',
+            selectedDevices: [],
             selectedCommand: '',
             targetIp: '',
             selectedIpVersion: 'IPv4',
             isLoading: false,
-            commandResult: '',
+            results: {},
+            resultOrder: [],
             devices: window.initialData?.devices ?? {},
             commands: window.initialData?.commands ?? {},
-            currentDevice: null,
             currentCommand: null,
             showHelp: false,
             showTerms: false,
             isOpen: false,
+            highlightedIndex: -1,
+            lastFocused: null,
             isDark: this.getInitialTheme(),
         }
     },
 
     mounted() {
         this.updateThemeClass();
+        document.addEventListener('click', this.handleDocumentClick);
+        document.addEventListener('keydown', this.handleKeydown);
+    },
+
+    unmounted() {
+        document.removeEventListener('click', this.handleDocumentClick);
+        document.removeEventListener('keydown', this.handleKeydown);
     },
 
     watch: {
-        selectedDevice: {
+        showHelp(isOpen) {
+            this.syncModalFocus(isOpen);
+        },
+        showTerms(isOpen) {
+            this.syncModalFocus(isOpen);
+        },
+        selectedDevices: {
             handler(newVal) {
-                this.currentDevice = this.devices[newVal] || null;
-                if (!newVal) {
+                if (!newVal.length) {
                     this.resetCommandState();
+                    return;
                 }
-                // Check if the current command is valid for the new device
-                const validCommands = this.currentDevice?.commands || [];
-                if (!validCommands.includes(this.selectedCommand)) {
-                    this.selectedCommand = ''; // Reset command if invalid
+                // Drop the command if it is not supported by every selected device
+                if (!this.filteredCommands.some(command => command.key === this.selectedCommand)) {
+                    this.selectedCommand = '';
                 }
             },
             
@@ -56,11 +70,55 @@ const app = Vue.createApp({
         },
 
         filteredCommands() {
-            if (!this.currentDevice) return [];
-            return this.currentDevice.commands.map(commandKey => ({
+            if (!this.selectedDevices.length) return [];
+
+            // Only commands every selected device supports can be run together
+            const shared = this.selectedDevices
+                .map(deviceKey => this.devices[deviceKey]?.commands ?? [])
+                .reduce((acc, commands) => acc.filter(commandKey => commands.includes(commandKey)));
+
+            return shared.map(commandKey => ({
                 key: commandKey,
                 ...this.commands[commandKey]
             }));
+        },
+
+        resultPanels() {
+            return this.resultOrder.map(deviceKey => ({
+                key: deviceKey,
+                device: this.devices[deviceKey] ?? {},
+                ...this.results[deviceKey]
+            }));
+        },
+
+        // Commands some, but not all, of the selected devices support
+        unavailableCommands() {
+            if (!this.selectedDevices.length) return [];
+
+            const shared = new Set(this.filteredCommands.map(command => command.key));
+
+            return Object.keys(this.commands)
+                .filter(commandKey => !shared.has(commandKey))
+                .map(commandKey => ({
+                    key: commandKey,
+                    ...this.commands[commandKey],
+                    missing: this.selectedDevices
+                        .filter(deviceKey => !(this.devices[deviceKey]?.commands ?? []).includes(commandKey))
+                        .map(deviceKey => this.devices[deviceKey]?.display_name || deviceKey)
+                }))
+                .filter(command => command.missing.length < this.selectedDevices.length);
+        },
+
+        resultStatus() {
+            if (!this.resultOrder.length) return '';
+
+            const total = this.resultOrder.length;
+            const label = total === 1 ? 'device' : 'devices';
+            const finished = this.resultOrder.filter(deviceKey => this.results[deviceKey]?.done).length;
+
+            return finished < total
+                ? `Running on ${total} ${label}, ${finished} finished`
+                : `Finished on ${total} ${label}`;
         },
 
         showIpVersionSelector() {
@@ -95,6 +153,9 @@ const app = Vue.createApp({
 
     methods: {
         getInitialTheme() {
+            const forcedTheme = window.initialData?.forcedTheme;
+            if (forcedTheme) return forcedTheme === 'dark';
+
             return localStorage.theme === 'dark' || 
                    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
         },
@@ -114,64 +175,236 @@ const app = Vue.createApp({
         },
 
         toggleDevice(deviceKey) {
-            this.selectedDevice = this.selectedDevice === deviceKey ? '' : deviceKey;
+            if (this.isLoading) return;
+
+            if (this.selectedDevices.includes(deviceKey)) {
+                this.selectedDevices = this.selectedDevices.filter(key => key !== deviceKey);
+                return;
+            }
+            // Rebuilt from the device list so the selection keeps the configured order
+            this.selectedDevices = Object.keys(this.devices)
+                .filter(key => key === deviceKey || this.selectedDevices.includes(key));
         },
 
         resetCommandState() {
             this.selectedCommand = '';
             this.targetIp = '';
-            this.commandResult = '';
+            this.results = {};
+            this.resultOrder = [];
+        },
+
+        finishPendingResults(message) {
+            for (const deviceKey of this.resultOrder) {
+                const result = this.results[deviceKey];
+                if (result.done) continue;
+
+                result.done = true;
+                result.error = message;
+            }
+        },
+
+        toggleResult(deviceKey) {
+            const result = this.results[deviceKey];
+            if (result) result.collapsed = !result.collapsed;
+        },
+
+        async copyResult(deviceKey) {
+            const result = this.results[deviceKey];
+            if (!result) return;
+
+            const text = result.error || result.output;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (error) {
+                // navigator.clipboard is unavailable outside secure contexts
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                textarea.remove();
+            }
+
+            result.copied = true;
+            setTimeout(() => { result.copied = false; }, 1500);
         },
 
         async executeCommand() {
             if (!this.isValidInput) {
-                this.commandResult = 'Error: Please enter a valid input.';
                 return;
             }
         
             this.isLoading = true;
-            this.commandResult = '';
+            this.resultOrder = [...this.selectedDevices];
+            this.results = Object.fromEntries(
+                this.resultOrder.map(deviceKey => [deviceKey, { output: '', error: '', done: false, collapsed: false, copied: false }])
+            );
+
+            this.$nextTick(() => this.$refs.results?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         
             try {
                 const response = await fetch('/execute', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        device: this.selectedDevice,
+                        devices: this.selectedDevices,
                         command: this.selectedCommand,
                         target: this.targetIp,
                         ipVersion: this.selectedIpVersion
                     })
                 });
         
-                const data = await response.json();
-        
-                if (!response.ok || data.error) {
-                    this.commandResult = 'Error: An error occurred.';
+                if (!response.ok || !response.body) {
+                    this.finishPendingResults('Error: An error occurred.');
                     return;
                 }
-        
-                this.commandResult = data.message || 'Error: No output received from command.';
+
+                await this.readStream(response);
+                this.finishPendingResults('Error: An error occurred.');
             } catch (error) {
-                this.commandResult = 'Error: An error occurred.';
+                this.finishPendingResults('Error: An error occurred.');
             } finally {
                 this.isLoading = false;
             }
         },
+
+        async readStream(response) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let pending = this.resultOrder.length;
+
+            while (pending > 0) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                // Each complete line is one JSON chunk; the last piece may be partial
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+
+                for (const line of lines) {
+                    if (!line) continue;
+
+                    const chunk = JSON.parse(line);
+                    const result = this.results[chunk.device];
+
+                    if (!result || result.done) continue;
+
+                    if (chunk.error) {
+                        result.error = `Error: ${chunk.message || 'An error occurred.'}`;
+                        result.done = true;
+                        pending--;
+                    } else if (chunk.done) {
+                        if (!result.output) {
+                            result.error = 'Error: No output received from command.';
+                        }
+                        result.done = true;
+                        pending--;
+                    } else {
+                        result.output += chunk.message;
+                    }
+                }
+            }
+
+            // The response is left to drain on its own so the server can finish logging
+        },
         
-        toggleDropdown(event) {
+        toggleDropdown() {
             this.isOpen = !this.isOpen;
+            if (this.isOpen) this.syncHighlight();
         },
 
-        closeDropdown(event) {
-            if (!event.target.closest('.relative')) {
-                this.isOpen = false;
+        syncHighlight() {
+            const index = this.filteredCommands.findIndex(command => command.key === this.selectedCommand);
+            this.highlightedIndex = index === -1 ? 0 : index;
+        },
+
+        moveHighlight(step) {
+            if (!this.isOpen) {
+                this.isOpen = true;
+                this.syncHighlight();
+                return;
             }
+
+            const count = this.filteredCommands.length;
+            if (!count) return;
+
+            this.highlightedIndex = (this.highlightedIndex + step + count) % count;
+            this.$nextTick(() => {
+                document.getElementById(`command-option-${this.highlightedIndex}`)?.scrollIntoView({ block: 'nearest' });
+            });
+        },
+
+        chooseHighlighted() {
+            if (!this.isOpen) {
+                this.isOpen = true;
+                this.syncHighlight();
+                return;
+            }
+
+            const command = this.filteredCommands[this.highlightedIndex];
+            if (command) this.selectCommand(command.key);
         },
 
         selectCommand(command) {
             this.selectedCommand = command;
-            setTimeout(() => this.isOpen = false, 100);
+            this.isOpen = false;
+        },
+
+        handleDocumentClick(event) {
+            if (!event.target.closest('[data-dropdown]')) {
+                this.isOpen = false;
+            }
+        },
+
+        handleKeydown(event) {
+            if (event.key === 'Escape') {
+                this.isOpen = false;
+                this.showHelp = false;
+                this.showTerms = false;
+                return;
+            }
+
+            if (event.key === 'Tab' && (this.showHelp || this.showTerms)) {
+                this.trapFocus(event);
+            }
+        },
+
+        trapFocus(event) {
+            const modal = document.querySelector('[data-modal]');
+            if (!modal) return;
+
+            const focusable = modal.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+
+        syncModalFocus(isOpen) {
+            if (isOpen) {
+                this.lastFocused = document.activeElement;
+                this.$nextTick(() => document.querySelector('[data-modal] button')?.focus());
+                return;
+            }
+
+            this.lastFocused?.focus();
+            this.lastFocused = null;
         }
     }
 });

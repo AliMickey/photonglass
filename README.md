@@ -19,12 +19,12 @@ A modern, simple, distributed looking glass application that provides network in
     - `mkdir instance`
     - `mkdir instance/images` # Optional
     - `mkdir instance/ssh-keys` # Optional
-3. Create config files and upload logos/favicon
+3. Upload logos/favicon and create `docker-compose.yml`
     - Refer to [CONFIGURATION.md](CONFIGURATION.md)
-4. Create `docker-compose.yml`
-    - Refer to [CONFIGURATION.md](CONFIGURATION.md)
-5. Build and deploy the container (inital build may take a minute)
+4. Build and deploy the container (inital build may take a minute)
     - `docker compose up -d --build`
+5. Edit the config files created in `instance` on first start, then restart the container
+    - Refer to [CONFIGURATION.md](CONFIGURATION.md)
 6. View the app at `http://IP_ADDRESS:5000`, recommend using a reverse proxy (traefik) for production use. 
 
 

@@ -1,0 +1,4 @@
+theme: "auto"
+
+#webhook:
+#  url: "https://hooks.slack.com/###"

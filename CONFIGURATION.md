@@ -1,9 +1,9 @@
 ## Configuration
 ### Logos and favicon
-If you wish to use custom assets, create the images folder under /instance, map it in docker-compose.yml and use the following filenames:
-  - favicon.svg
-  - logo-dark.svg
-  - logo-light.svg
+If you wish to use custom assets, create the images folder under /instance and map it in docker-compose.yml. Any web image format may be used (svg, png, jpg, webp, ico), set the filenames under `header` in `site.yaml`:
+  - `favicon` (default `favicon.svg`)
+  - `logo_light` (default `logo-light.svg`)
+  - `logo_dark` (default `logo-dark.svg`)
 
 
 ### docker-compose.yml
@@ -20,66 +20,11 @@ services:
 #      - ./instance/images:/app/static/images # Commented out by default to use default logos
 ```
 
-### instance/site.yaml
-```
-header:
-  title: "photonglass"
-  logo_href: "#"
+### Config files
+On first start, any of `config.yaml`, `site.yaml`, `commands.yaml` and `devices.yaml` that are missing from `/instance` are copied there from [app/examples](app/examples). Edit them and restart the container to apply.
 
-footer:
-  text: "photonglass"
-  peeringdb_href: "https://www.peeringdb.com/net/xxx"
-  github_href: "https://github.com/alimickey/photonglass"
-```
-
-### instance/config.yaml
-```
-webhook:
-  url: "https://hooks.slack.com/###"
-```
-
-### instance/commands.yaml
-```
-ping:
-  display_name: "Ping"
-  format: "ping -{ip_version} -c 4 {target}"
-  description: "Performs ping with 4 ICMP requests to target"
-  field:
-    type: "text"
-    placeholder: "Enter IP address or hostname"
-
-traceroute:
-  display_name: "Traceroute"
-  format: "traceroute -{ip_version} {target}"
-  description: "Performs traceroute to target"
-  field:
-    type: "text"
-    placeholder: "Enter IP address or hostname"
-
-mtr:
-  display_name: "MTR"
-  format: "mtr -{ip_version} -r {target}"
-  description: "Performs MTR to target"
-  field:
-    type: "text"
-    placeholder: "Enter IP address or hostname"
-```
-
-### instance/devices.yaml
-```
-sydney1:
-  display_name: "Sydney"
-  subtext: "Equinix SY3"
-  country_code: "AU"
-  type: "linux"
-  commands:
-    - ping
-    - traceroute
-    - mtr
-  credentials:
-    host: "IP_ADDRESS"
-    port: PORT
-    username: "USERNAME"
-    password: "PASSWORD"
-    ssh_key: "id_rsa" # Optional
-```
+Notes:
+  - `theme` accepts `auto`, `light` or `dark`. `light` and `dark` hide the toggle.
+  - A command `format` may use the `{ip_version}` and `{target}` placeholders.
+  - A device may only run the commands listed under its `commands` key.
+  - Device credentials take either a `password` or an `ssh_key`, where `ssh_key` is a filename inside `/instance/ssh-keys`.

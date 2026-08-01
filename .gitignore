@@ -1,5 +1,5 @@
 # Config files
-instance/*
+instance
 
 docker-compose.yml
 

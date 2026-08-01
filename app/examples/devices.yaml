@@ -1,0 +1,15 @@
+sydney1:
+  display_name: "Sydney"
+  subtext: "Equinix SY3"
+  country_code: "AU"
+  type: "linux"
+  commands:
+    - ping
+    - traceroute
+    - mtr
+  credentials:
+    host: "IP_ADDRESS"
+    port: 22
+    username: "USERNAME"
+    password: "PASSWORD"
+#    ssh_key: "id_rsa" # Optional, replaces password

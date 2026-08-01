@@ -1,6 +1,6 @@
-import logging
+import json, logging, queue, threading
 from copy import deepcopy
-from flask import Blueprint, request, render_template, current_app
+from flask import Blueprint, Response, request, render_template, current_app, stream_with_context
 
 from app.functions.utils import exception_handler, send_webhook, get_client_ip, get_validated_target
 from app.functions.netmiko import execute_command
@@ -22,7 +22,10 @@ def index():
     for device in devices.values():
         device.pop('credentials', None)
 
-    return render_template('index.html', site=site, devices=devices, commands=commands)
+    theme = str(current_app.config['CONFIG'].get('theme') or 'auto').strip().lower()
+    forced_theme = theme if theme in ('light', 'dark') else None
+
+    return render_template('index.html', site=site, devices=devices, commands=commands, forced_theme=forced_theme)
 
 
 # Route to handle command execution requests
@@ -31,12 +34,17 @@ def index():
 def execute():
     data = request.get_json()    
     
-    input_device = data.get('device').strip()
+    input_devices = data.get('devices')
     input_command = data.get('command').strip()
     input_target = data.get('target').strip()
     input_ip_version = data.get('ipVersion').strip()
 
-    if not all([input_device, input_command, input_target, input_ip_version]):
+    if not isinstance(input_devices, list):
+        raise Exception("Missing required parameters")
+
+    device_keys = list(dict.fromkeys(key.strip() for key in input_devices if isinstance(key, str) and key.strip()))
+
+    if not all([device_keys, input_command, input_target, input_ip_version]):
         raise Exception("Missing required parameters")
     
     target_valid, value = get_validated_target(input_target)
@@ -46,25 +54,72 @@ def execute():
 
     clean_target = str(value)
 
-    device = current_app.config['DEVICES'].get(input_device, {})
     command = current_app.config['COMMANDS'].get(input_command, {})
 
-    # Verify device and command exist
-    if not device or not command:
+    if not command:
         raise Exception("Device or command not found")
-    
-    # Verify command is allowed for this device
-    if input_command not in device.get('commands', []):
-        raise Exception("Command not allowed for this device")
 
-    # Execute the command using network_utils
+    selected_devices = {}
+
+    for device_key in device_keys:
+        device = current_app.config['DEVICES'].get(device_key, {})
+
+        # Verify device exists
+        if not device:
+            raise Exception("Device or command not found")
+
+        # Verify command is allowed for this device
+        if input_command not in device.get('commands', []):
+            raise Exception("Command not allowed for this device")
+
+        selected_devices[device_key] = device
+
     ip_version = 6 if input_ip_version == "IPv6" else 4
-    result = execute_command(device, command['format'], clean_target, ip_version)
-
-    # Send a webhook notification with client IP and command output
     webhook = current_app.config['CONFIG'].get('webhook')
-    if not result['error'] and webhook:
-        client_ip = get_client_ip()
-        send_webhook(webhook['url'], f"Client IP: `{client_ip}`\nDevice: `{input_device}`\nCommand: `{input_command} -{ip_version} {clean_target}`")
+    client_ip = get_client_ip()
 
-    return result
+    # Stream the output of every selected device back as newline-delimited JSON
+    def generate():
+        chunks = queue.Queue()
+        failed = set()
+
+        # One worker per device so slow devices never hold up the others
+        def worker(device_key, device):
+            try:
+                for chunk in execute_command(device, command['format'], clean_target, ip_version):
+                    chunks.put((device_key, chunk))
+            except Exception:
+                logger.exception(f"Failed to execute command on {device_key}")
+                chunks.put((device_key, {'error': True, 'message': 'Unexpected error'}))
+            finally:
+                chunks.put((device_key, None))
+
+        for device_key, device in selected_devices.items():
+            threading.Thread(target=worker, args=(device_key, device), daemon=True).start()
+
+        remaining = len(selected_devices)
+
+        while remaining:
+            device_key, chunk = chunks.get()
+
+            # A worker signals it is finished by pushing None
+            if chunk is None:
+                remaining -= 1
+                continue
+
+            if chunk.get('error', False):
+                failed.add(device_key)
+
+            yield json.dumps({'device': device_key, **chunk}) + "\n"
+
+        succeeded = [device_key for device_key in selected_devices if device_key not in failed]
+
+        # Send a webhook notification with client IP and command output
+        if succeeded and webhook:
+            send_webhook(webhook['url'], f"Client IP: `{client_ip}`\nDevices: `{', '.join(succeeded)}`\nCommand: `{input_command} -{ip_version} {clean_target}`")
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='application/x-ndjson',
+        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'}
+    )
