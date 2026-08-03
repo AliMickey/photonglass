@@ -6,13 +6,13 @@
         <div class="mb-12 max-w-6xl mx-auto">
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                 {% for device_key, device in devices.items() %}
-                    <button @click="toggleDevice('{{ device_key }}')" 
-                            :disabled="isLoading"
+                    <button @click="toggleDevice('{{ device_key }}')"
+                            :disabled="isDeviceDisabled('{{ device_key }}')"
                             :aria-pressed="selectedDevices.includes('{{ device_key }}')"
                             title="Supports: {% for command_key in device.commands or [] %}{{ commands[command_key].display_name if command_key in commands else command_key }}{{ ', ' if not loop.last }}{% endfor %}"
                             :class="[
                                 'flex flex-row items-center justify-between gap-2 px-4 py-3 min-h-[6rem] rounded-lg border-2 transition-all duration-200 ease-in-out transform hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900',
-                                isLoading ? 'opacity-60 pointer-events-none' : '',
+                                isDeviceDisabled('{{ device_key }}') ? 'opacity-60 pointer-events-none' : '',
                                 selectedDevices.includes('{{ device_key }}')
                                     ? 'bg-gray-100 dark:bg-gray-800 border-gray-700 dark:border-gray-300 text-gray-700 dark:text-gray-300 shadow-lg scale-[1.02]'
                                     : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-500 dark:hover:border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -29,6 +29,13 @@
                     </button>
                 {% endfor %}
             </div>
+            {% if max_devices %}
+                <p v-show="isDeviceLimitReached"
+                   class="mt-4 text-center text-xs text-gray-500 dark:text-gray-400"
+                   aria-live="polite">
+                    Maximum of ${maxDevices} device${maxDevices === 1 ? '' : 's'} selected
+                </p>
+            {% endif %}
         </div>
 
         <!-- Query Type Selection -->

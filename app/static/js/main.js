@@ -11,6 +11,7 @@ const app = Vue.createApp({
             resultOrder: [],
             devices: window.initialData?.devices ?? {},
             commands: window.initialData?.commands ?? {},
+            maxDevices: window.initialData?.maxDevices ?? 0,
             currentCommand: null,
             showHelp: false,
             showTerms: false,
@@ -87,6 +88,11 @@ const app = Vue.createApp({
                 key: commandKey,
                 ...this.commands[commandKey]
             }));
+        },
+
+        // No more devices may be added once the configured cap is hit
+        isDeviceLimitReached() {
+            return this.maxDevices > 0 && this.selectedDevices.length >= this.maxDevices;
         },
 
         resultPanels() {
@@ -180,8 +186,12 @@ const app = Vue.createApp({
             document.documentElement.classList[this.isDark ? 'add' : 'remove']('dark');
         },
 
+        isDeviceDisabled(deviceKey) {
+            return this.isLoading || (this.isDeviceLimitReached && !this.selectedDevices.includes(deviceKey));
+        },
+
         toggleDevice(deviceKey) {
-            if (this.isLoading) return;
+            if (this.isDeviceDisabled(deviceKey)) return;
 
             if (this.selectedDevices.includes(deviceKey)) {
                 this.selectedDevices = this.selectedDevices.filter(key => key !== deviceKey);

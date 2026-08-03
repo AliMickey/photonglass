@@ -18,7 +18,8 @@
                 site: {{ site|tojson|safe }},
                 devices: {{ devices|tojson|safe }},
                 commands: {{ commands|tojson|safe }},
-                forcedTheme: {{ forced_theme|tojson|safe }}
+                forcedTheme: {{ forced_theme|tojson|safe }},
+                maxDevices: {{ max_devices|tojson|safe }}
             };
         </script>
     </head>

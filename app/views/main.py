@@ -25,7 +25,11 @@ def index():
     theme = str(current_app.config['CONFIG'].get('theme') or 'auto').strip().lower()
     forced_theme = theme if theme in ('light', 'dark') else None
 
-    return render_template('index.html', site=site, devices=devices, commands=commands, forced_theme=forced_theme)
+    # Cap on how many devices one query may target, where 0 is no limit
+    max_devices = max(int(current_app.config['CONFIG'].get('max_devices') or 0), 0)
+
+    return render_template('index.html', site=site, devices=devices, commands=commands,
+                           forced_theme=forced_theme, max_devices=max_devices)
 
 
 # Route to handle command execution requests
@@ -46,7 +50,12 @@ def execute():
 
     if not all([device_keys, input_command, input_target, input_ip_version]):
         raise Exception("Missing required parameters")
-    
+
+    max_devices = max(int(current_app.config['CONFIG'].get('max_devices') or 0), 0)
+
+    if max_devices and len(device_keys) > max_devices:
+        raise Exception(f"A query may target at most {max_devices} devices")
+
     target_valid, value = get_validated_target(input_target)
 
     if not target_valid:
