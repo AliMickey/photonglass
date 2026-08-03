@@ -5,6 +5,10 @@ header:
   logo_dark: "logo-dark.svg"
   favicon: "favicon.svg"
 
+colours:
+  primary: "#4a5568"
+  secondary: "#a0aec0"
+
 footer:
   text: "photonglass"
   peeringdb_href: "https://www.peeringdb.com/net/xxx"

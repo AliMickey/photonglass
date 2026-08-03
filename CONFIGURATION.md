@@ -5,6 +5,14 @@ If you wish to use custom assets, create the images folder under /instance and m
   - `logo_light` (default `logo-light.svg`)
   - `logo_dark` (default `logo-dark.svg`)
 
+Each of these may instead be an `https://` image URL, which is used as-is and needs no images folder, for example `logo_light: "https://example.com/logo-light.svg"`. Anything else is treated as a filename.
+
+
+### Colours
+Set hex colours under `colours` in `site.yaml` to accent the interactive parts of the UI:
+  - `primary` (default `#4a5568`) selected and focused states: the selected device border, focus rings, the focused dropdown and target input borders, and the tick beside the selected query type
+  - `secondary` (default `#a0aec0`) hover states: the device, dropdown, target input and execute button borders
+
 
 ### docker-compose.yml
 ```

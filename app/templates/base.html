@@ -1,17 +1,29 @@
 {%- set favicon = site.header.favicon | default('favicon.svg', true) -%}
 {%- set logo_light = site.header.logo_light | default('logo-light.svg', true) -%}
 {%- set logo_dark = site.header.logo_dark | default('logo-dark.svg', true) -%}
+{#- A logo/favicon may be a filename under static/images or an https image URL -#}
+{%- set favicon_src = favicon if favicon.startswith('https://') else url_for('static', filename='images/' ~ favicon) -%}
+{%- set logo_light_src = logo_light if logo_light.startswith('https://') else url_for('static', filename='images/' ~ logo_light) -%}
+{%- set logo_dark_src = logo_dark if logo_dark.startswith('https://') else url_for('static', filename='images/' ~ logo_dark) -%}
+{%- set colours = site.colours | default({}, true) -%}
 <!doctype html>
 <html lang="en"{% if forced_theme == 'dark' %} class="dark"{% endif %}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link rel="icon" href="{{ url_for('static', filename='images/' ~ favicon) }}"/>
-        <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/' ~ favicon) }}"/>
+        <link rel="icon" href="{{ favicon_src }}"/>
+        <link rel="apple-touch-icon" href="{{ favicon_src }}"/>
         <title>{{ site.header.title }}</title>
         <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
         <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet"/>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.11.0/css/flag-icons.min.css"/>
+        <style>
+            /* Accent colours from site.yaml, used by the utility classes in the templates */
+            :root {
+                --colour-primary: {{ colours.primary | default('#4a5568', true) }};
+                --colour-secondary: {{ colours.secondary | default('#a0aec0', true) }};
+            }
+        </style>
         <script>
             // Initialize window.initialData for Vue
             window.initialData = {
@@ -29,8 +41,8 @@
             <div class="flex-grow w-full max-w-screen-2xl px-4 mx-auto">
                 <div class="mt-8 mb-12 flex justify-center items-center">
                     <a href="{{ site.header.logo_href }}" target="_blank" class="inline-block">
-                        <img src="{{ url_for('static', filename='images/' ~ logo_light) }}" alt="Logo" class="h-12 w-auto dark:hidden"/>
-                        <img src="{{ url_for('static', filename='images/' ~ logo_dark) }}" alt="Logo" class="h-12 w-auto hidden dark:block"/>
+                        <img src="{{ logo_light_src }}" alt="Logo" class="h-12 w-auto dark:hidden"/>
+                        <img src="{{ logo_dark_src }}" alt="Logo" class="h-12 w-auto hidden dark:block"/>
                     </a>
                 </div>
 
