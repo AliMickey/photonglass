@@ -1,7 +1,7 @@
 # photonglass
 A modern, simple, distributed looking glass application that provides network insight for network operators.
 
-[![](screenshot.png)](https://raw.githubusercontent.com/AliMickey/photonglass/7421c8a6dc1f31fef78ed5e1efb7402c89c9898c/screenshot.png)
+[![](screenshot.png)](https://raw.githubusercontent.com/AliMickey/photonglass/refs/heads/main/screenshot.png)
 
 
 ## Features
