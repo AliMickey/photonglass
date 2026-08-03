@@ -57,12 +57,13 @@
                                 @keydown.enter.prevent="chooseHighlighted"
                                 @keydown.space.prevent="chooseHighlighted"
                                 @keydown.esc="isOpen = false"
+                                :disabled="isLoading"
                                 role="combobox"
                                 aria-haspopup="listbox"
                                 aria-controls="command-listbox"
                                 :aria-expanded="isOpen"
                                 :aria-activedescendant="isOpen && highlightedIndex >= 0 ? 'command-option-' + highlightedIndex : null"
-                                class="relative w-full h-12 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm pl-3 pr-10 text-left cursor-pointer focus:outline-none focus:border-gray-500 dark:focus:border-gray-500 sm:text-sm transition-colors duration-200 ease-in-out hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)]">
+                                class="relative w-full h-12 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm pl-3 pr-10 text-left cursor-pointer focus:outline-none focus:border-gray-500 dark:focus:border-gray-500 sm:text-sm transition-colors duration-200 ease-in-out hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700">
                             <span class="block truncate text-gray-700 dark:text-gray-300">
                                 ${currentCommand ? currentCommand.display_name : (filteredCommands.length ? 'Select query type...' : 'No shared commands')}
                             </span>
@@ -140,7 +141,8 @@
                                         v-model="targetIp" 
                                         type="text" 
                                         @keyup.enter="isValidInput && executeCommand()"
-                                        class="w-full h-12 rounded-lg px-3 pr-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] focus:outline-none focus:border-gray-500 dark:focus:border-gray-500 transition-colors duration-200 ease-in-out"
+                                        :disabled="isLoading"
+                                        class="w-full h-12 rounded-lg px-3 pr-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] focus:outline-none focus:border-gray-500 dark:focus:border-gray-500 transition-colors duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700"
                                         :placeholder="currentCommand?.field?.placeholder || 'Enter target'"
                                         :pattern="currentCommand?.field?.validation || '.*'"
                                         required>
@@ -148,7 +150,7 @@
                                         <button
                                             type="button"
                                             @click="toggleIpVersion"
-                                            :disabled="!showIpVersionSelector"
+                                            :disabled="!showIpVersionSelector || isLoading"
                                             class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-100 dark:disabled:hover:bg-gray-700">
                                             ${selectedIpVersion}
                                         </button>
@@ -158,23 +160,26 @@
                                     @click="executeCommand"
                                     :disabled="isLoading || !isValidInput || !targetIp"
                                     class="h-12 px-4 flex-shrink-0 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--colour-primary)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transform transition-all duration-200 ease-in-out">
-                                    <transition
-                                        enter-active-class="transition-all ease-in-out duration-200"
-                                        enter-from-class="opacity-0 rotate-180 scale-0"
-                                        enter-to-class="opacity-100 rotate-0 scale-100"
-                                        leave-active-class="transition-all ease-in-out duration-200"
-                                        leave-from-class="transform opacity-100 rotate-0 scale-100"
-                                        leave-to-class="transform opacity-0 rotate-180 scale-0">
-                                        <!-- Loading Spinner -->
-                                        <svg v-if="isLoading" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        <!-- Execute Icon -->
-                                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </transition>
+                                    <!-- Fixed icon slot so the crossfading icons overlap instead of widening the button -->
+                                    <span class="relative h-5 w-5">
+                                        <transition
+                                            enter-active-class="transition-all ease-in-out duration-200"
+                                            enter-from-class="opacity-0 rotate-180 scale-0"
+                                            enter-to-class="opacity-100 rotate-0 scale-100"
+                                            leave-active-class="transition-all ease-in-out duration-200"
+                                            leave-from-class="transform opacity-100 rotate-0 scale-100"
+                                            leave-to-class="transform opacity-0 rotate-180 scale-0">
+                                            <!-- Loading Spinner -->
+                                            <svg v-if="isLoading" class="animate-spin absolute inset-0 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <!-- Execute Icon -->
+                                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </transition>
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -209,9 +214,8 @@
                      :role="expandedDevice === panel.key ? 'dialog' : null"
                      :aria-modal="expandedDevice === panel.key ? 'true' : null"
                      :class="['bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-hidden',
-                              expandedDevice === panel.key ? 'fixed inset-y-2 sm:inset-y-4 inset-x-4 mx-auto max-w-[92rem] z-50 flex flex-col shadow-2xl' : '']">
-                    <div class="flex flex-shrink-0 items-stretch border-gray-200 dark:border-gray-700"
-                         :class="{'border-b': !panel.collapsed}">
+                              expandedDevice === panel.key ? 'fixed inset-2 sm:inset-4 z-50 flex flex-col shadow-2xl' : '']">
+                    <div class="flex flex-shrink-0 items-stretch">
                         <button type="button"
                                 @click="toggleResult(panel.key)"
                                 :disabled="expandedDevice === panel.key"
@@ -266,9 +270,15 @@
                             </svg>
                         </button>
                     </div>
-                    <pre v-show="!panel.collapsed"
-                         :class="['p-4 text-gray-800 dark:text-gray-300 font-mono text-sm overflow-auto whitespace-pre break-words',
-                                  expandedDevice === panel.key ? 'flex-1 min-h-0' : 'max-h-96']">${panel.error || panel.output}</pre>
+                    <div :aria-hidden="panel.collapsed ? 'true' : null"
+                         :class="['grid transition-[grid-template-rows] duration-200 ease-in-out',
+                                  panel.collapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+                                  expandedDevice === panel.key ? 'flex-1 min-h-0' : '']">
+                        <div class="overflow-hidden">
+                            <pre :class="['p-4 border-t border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-300 font-mono text-sm overflow-auto whitespace-pre break-words',
+                                          expandedDevice === panel.key ? 'h-full' : 'max-h-96']">${panel.error || panel.output}</pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
