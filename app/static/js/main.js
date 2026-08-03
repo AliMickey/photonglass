@@ -43,7 +43,6 @@ const app = Vue.createApp({
             this.syncModalFocus(isOpen);
         },
         expandedDevice(deviceKey) {
-            document.body.classList.toggle('overflow-hidden', Boolean(deviceKey));
             this.syncModalFocus(Boolean(deviceKey));
         },
         selectedDevices: {
@@ -451,6 +450,9 @@ const app = Vue.createApp({
         },
 
         syncModalFocus(isOpen) {
+            // Every modal — help, terms and the expanded result — locks the page behind it
+            document.body.classList.toggle('overflow-hidden', isOpen);
+
             if (isOpen) {
                 this.lastFocused = document.activeElement;
                 this.$nextTick(() => document.querySelector('[data-modal] button')?.focus());

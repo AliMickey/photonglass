@@ -10,25 +10,25 @@
 
                 <!-- Navigation Links -->
                 <div class="flex items-center space-x-8">
-                    <button @click="showTerms = true" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200">
+                    <button @click="showTerms = true" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
                         Terms
                     </button>
 
                     <!-- Help Button -->
-                    <button @click.prevent="showHelp = !showHelp" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200 cursor-pointer">
+                    <button @click.prevent="showHelp = !showHelp" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
                         Help
                     </button>
 
                     <!-- PeeringDB Link -->
                     {% if site.footer.peeringdb_href %}
-                    <a href="{{ site.footer.peeringdb_href }}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200">
+                    <a href="{{ site.footer.peeringdb_href }}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
                         PeeringDB
                     </a>
                     {% endif %}
 
                     <!-- GitHub Link -->
                     {% if site.footer.github_href %}
-                    <a href="{{ site.footer.github_href }}" target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <a href="{{ site.footer.github_href }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                         </svg>
@@ -39,7 +39,8 @@
                     {% if not forced_theme %}
                     <button
                         @click="toggleTheme"
-                        class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                        aria-label="Toggle theme"
+                        class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             class="h-5 w-5 hidden dark:block"
@@ -73,84 +74,92 @@
 
     <!-- Terms Modal -->
     <transition
-        enter-active-class="transition ease-in-out duration-150"
+        enter-active-class="transition-opacity ease-in-out duration-200"
         enter-from-class="opacity-0"
         enter-to-class="opacity-100"
-        leave-active-class="transition ease-in-out duration-150"
+        leave-active-class="transition-opacity ease-in-out duration-200"
         leave-from-class="opacity-100"
         leave-to-class="opacity-0">
         <div
             v-if="showTerms"
             @click.self="showTerms = false"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div
-                data-modal
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="terms-title"
-                class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full p-6 transform transition-all duration-150"
-                :class="showTerms ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="terms-title" class="text-lg font-medium text-gray-900 dark:text-white">
-                        Terms of Service
-                    </h3>
-                    <button @click="showTerms = false" aria-label="Close" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
+            <transition appear
+                enter-active-class="transition-all ease-in-out duration-200"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100">
+                <div
+                    data-modal
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="terms-title"
+                    class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="terms-title" class="text-lg font-medium text-gray-900 dark:text-white">
+                            Terms of Service
+                        </h3>
+                        <button @click="showTerms = false" aria-label="Close" class="p-1 -mr-1 rounded text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-gray-700 dark:text-gray-300">By using this Looking Glass service, you agree to use the service responsibly and not for any malicious purposes, not attempt to overload or disrupt the service, respect the privacy and security measures in place.</p>
+                    </div>
                 </div>
-                <div class="prose dark:prose-invert max-w-none">
-                    <p class="text-gray-700 dark:text-gray-300">By using this Looking Glass service, you agree to use the service responsibly and not for any malicious purposes, not attempt to overload or disrupt the service, respect the privacy and security measures in place.</p>
-                </div>
-            </div>
+            </transition>
         </div>
     </transition>
 
     <!-- Help Modal -->
     <transition
-        enter-active-class="transition ease-in-out duration-150"
+        enter-active-class="transition-opacity ease-in-out duration-200"
         enter-from-class="opacity-0"
         enter-to-class="opacity-100"
-        leave-active-class="transition ease-in-out duration-150"
+        leave-active-class="transition-opacity ease-in-out duration-200"
         leave-from-class="opacity-100"
         leave-to-class="opacity-0">
         <div
             v-if="showHelp"
             @click.self="showHelp = false"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div
-                data-modal
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="help-title"
-                class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full p-6 transform transition-all duration-150"
-                :class="showHelp ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="help-title" class="text-lg font-medium text-gray-900 dark:text-white">
-                        Available Commands
-                    </h3>
-                    <button @click="showHelp = false" aria-label="Close" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    {% for command in commands.values() %}
-                        <div class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 last:pb-0">
-                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">
-                                <p class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-sm font-mono">
-                                    {{ command.display_name }}
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm">
+            <transition appear
+                enter-active-class="transition-all ease-in-out duration-200"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100">
+                <div
+                    data-modal
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="help-title"
+                    class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="help-title" class="text-lg font-medium text-gray-900 dark:text-white">
+                            Available Commands
+                        </h3>
+                        <button @click="showHelp = false" aria-label="Close" class="p-1 -mr-1 rounded text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        {% for command in commands.values() %}
+                            <div class="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-4 last:pb-0">
+                                <h4 class="font-medium mb-2">
+                                    <span class="block bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1.5 rounded-lg text-sm font-mono">
+                                        {{ command.display_name }}
+                                    </span>
+                                </h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm pl-2 border-l-2 border-gray-400 dark:border-gray-500">
+                                    {{ command.description if command.description else 'No description available' }}
                                 </p>
-                            </h4>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm pl-2 border-l-2 border-gray-400 dark:border-gray-500">
-                                {{ command.description if command.description else 'No description available' }}
-                            </p>
-                        </div>
-                    {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
+            </transition>
         </div>
     </transition>
 {% endblock %}
