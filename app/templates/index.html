@@ -62,7 +62,7 @@
                                 aria-controls="command-listbox"
                                 :aria-expanded="isOpen"
                                 :aria-activedescendant="isOpen && highlightedIndex >= 0 ? 'command-option-' + highlightedIndex : null"
-                                class="relative w-full h-12 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm pl-3 pr-10 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-[color:var(--colour-primary)] focus:border-[color:var(--colour-primary)] dark:focus:border-[color:var(--colour-primary)] sm:text-sm transition-all duration-200 ease-in-out hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)]">
+                                class="relative w-full h-12 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm pl-3 pr-10 text-left cursor-pointer focus:outline-none focus:border-[color:var(--colour-primary)] dark:focus:border-[color:var(--colour-primary)] sm:text-sm transition-colors duration-200 ease-in-out hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)]">
                             <span class="block truncate text-gray-700 dark:text-gray-300">
                                 ${currentCommand ? currentCommand.display_name : (filteredCommands.length ? 'Select query type...' : 'No shared commands')}
                             </span>
@@ -140,7 +140,7 @@
                                         v-model="targetIp" 
                                         type="text" 
                                         @keyup.enter="isValidInput && executeCommand()"
-                                        class="w-full h-12 rounded-lg px-3 pr-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] focus:border-[color:var(--colour-primary)] dark:focus:border-[color:var(--colour-primary)] transition-all duration-200 ease-in-out"
+                                        class="w-full h-12 rounded-lg px-3 pr-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-[color:var(--colour-secondary)] dark:hover:border-[color:var(--colour-secondary)] focus:outline-none focus:border-[color:var(--colour-primary)] dark:focus:border-[color:var(--colour-primary)] transition-colors duration-200 ease-in-out"
                                         :placeholder="currentCommand?.field?.placeholder || 'Enter target'"
                                         :pattern="currentCommand?.field?.validation || '.*'"
                                         required>
