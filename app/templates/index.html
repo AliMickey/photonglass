@@ -201,8 +201,7 @@
              ref="results"
              role="region"
              aria-label="Query results"
-             class="mb-8 w-full grid gap-4 items-start"
-             :class="resultPanels.length > 1 ? 'md:grid-cols-2' : 'grid-cols-1'">
+             class="mb-8 w-full grid grid-cols-1 gap-4 items-start">
             <div v-for="panel in resultPanels" :key="panel.key"
                  :style="expandedDevice === panel.key ? { height: expandedPlaceholder + 'px' } : null">
                 <div :data-panel="panel.key"

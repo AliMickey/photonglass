@@ -295,7 +295,7 @@ const app = Vue.createApp({
             this.resultOrder = [...this.selectedDevices];
             this.expandedDevice = null;
             this.results = Object.fromEntries(
-                this.resultOrder.map(deviceKey => [deviceKey, { output: '', error: '', done: false, collapsed: false, copied: false }])
+                this.resultOrder.map((deviceKey, index) => [deviceKey, { output: '', error: '', done: false, collapsed: index > 0, copied: false }])
             );
 
             this.$nextTick(() => this.$refs.results?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
