@@ -18,6 +18,8 @@ def exception_handler(func):
         try:
             return func(*args, **kwargs)
         except InputError as e:
+            # Recorded without a webhook, as a rejected target is usually just a typo
+            logger.warning(f"Rejected input in {func.__name__}: {e}")
             return jsonify({'error': True, 'message': str(e)}), 400
 
         except Exception as e:
@@ -54,6 +56,18 @@ def get_client_ip():
     if not request.headers.getlist("X-Forwarded-For"):
         return request.remote_addr
     return request.headers.getlist("X-Forwarded-For")[0]
+
+
+# Whether a target is reachable on the public internet, which a hostname always may be
+def is_global_target(value):
+    # A prefix is only global when both of its ends are, which its own is_global allows for
+    if isinstance(value, (ipaddress.IPv4Network, ipaddress.IPv6Network)):
+        return value.network_address.is_global and value.broadcast_address.is_global
+
+    if isinstance(value, str):
+        return True
+
+    return value.is_global
 
 
 # Validate the target string against the format its command takes
@@ -96,14 +110,7 @@ def get_validated_target(target_string, field, allow_private=False):
 
             value = target_string
 
-    # Whatever reads as an address or a prefix is held to the config, a hostname or an AS
-    # number has nothing to reject
-    if not allow_private:
-        try:
-            if not ipaddress.ip_network(target_string, strict=False).is_global:
-                return False, "Non-global IP address provided"
-
-        except ValueError:
-            pass
+    if not allow_private and not is_global_target(value):
+        return False, "Non-global IP address provided"
 
     return True, value

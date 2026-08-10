@@ -30,6 +30,6 @@ Notes:
   - `max_devices` caps how many devices a single query may run against, `0` (the default) allows every device.
   - `allow_private` lets a query target private and reserved addresses, `false` (the default) rejects them.
   - A command `format` may use the `{ip_version}` and `{target}` placeholders.
-  - A command `type` may use `address`, `prefix` or `hostname` to pick the target format it takes. `text` (the default) takes an IP address or a hostname.
+  - A command may set `field.type` to `address`, `prefix` or `hostname` to pick the target format it takes. `text` (the default) takes an IP address or a hostname.
   - A device may only run the commands listed under its `commands` key.
   - Device credentials take either a `password` or an `ssh_key`, where `ssh_key` is a filename inside `/instance/ssh-keys`.

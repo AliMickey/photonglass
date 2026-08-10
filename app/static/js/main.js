@@ -1,7 +1,7 @@
 // Loose patterns for the target field, where the server has the final say
 const targetValidation = {
     v4: /^(\d{1,3}\.){3}\d{1,3}$/,
-    v6: /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){0,7}:([0-9a-fA-F]{1,4}:){0,7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
+    v6: /^([0-9a-fA-F]{0,4}:){2,7}([0-9a-fA-F]{0,4}|\d{1,3}(\.\d{1,3}){3})$/,
     hostname: /^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$/,
     mask: /^\d{1,3}$/
 };

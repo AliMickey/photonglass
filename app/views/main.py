@@ -62,7 +62,7 @@ def execute():
         raise InputError("Device or command not found")
 
     field = command.get('field') or {}
-    allow_private = current_app.config['CONFIG'].get('allow_private')
+    allow_private = str(current_app.config['CONFIG'].get('allow_private')).strip().lower() in ('true', 'yes')
 
     target_valid, value = get_validated_target(input_target, field, allow_private)
 
