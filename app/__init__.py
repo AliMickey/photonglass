@@ -19,8 +19,8 @@ def create_app():
     # The only request body is a small JSON query, so anything larger is refused unread
     app.config['MAX_CONTENT_LENGTH'] = 64 * 1024
 
-    # Keep the config order when serialising, so devices reach the page as they are listed
-    app.json.sort_keys = False
+    # Jinja sorts keys when serialising by default, which would reorder the configured devices
+    app.jinja_env.policies['json.dumps_kwargs'] = {'sort_keys': False}
 
     limiter.init_app(app)
     
