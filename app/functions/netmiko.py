@@ -38,14 +38,15 @@ def stream_output(connection, command, timeout=COMMAND_TIMEOUT):
 
         buffer += chunk
 
-        # Drop the echo of the command itself
+        # Drop the echo of the command itself, which blank lines can precede
         if not echo_stripped:
-            if "\n" not in buffer:
+            stripped = buffer.lstrip("\r\n")
+
+            if "\n" not in stripped:
                 continue
 
-            echoed, remainder = buffer.split("\n", 1)
-            if command in echoed:
-                buffer = remainder
+            echoed, remainder = stripped.split("\n", 1)
+            buffer = remainder if command in echoed or echoed.startswith(prompt) else stripped
             echo_stripped = True
 
         if not started:
