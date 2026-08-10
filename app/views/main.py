@@ -2,7 +2,7 @@ import json, logging, queue, threading
 from copy import deepcopy
 from flask import Blueprint, Response, request, render_template, current_app, stream_with_context
 
-from app.functions.utils import exception_handler, send_webhook, get_client_ip, get_validated_target
+from app.functions.utils import InputError, exception_handler, send_webhook, get_client_ip, get_validated_target
 from app.functions.netmiko import execute_command
 
 logger = logging.getLogger(__name__)
@@ -36,37 +36,37 @@ def index():
 @bp.route('/execute', methods=['POST'])
 @exception_handler
 def execute():
-    data = request.get_json()    
-    
+    data = request.get_json(silent=True) or {}
+
     input_devices = data.get('devices')
-    input_command = data.get('command').strip()
-    input_target = data.get('target').strip()
-    input_ip_version = data.get('ipVersion').strip()
+    input_command = str(data.get('command') or '').strip()
+    input_target = str(data.get('target') or '').strip()
+    input_ip_version = str(data.get('ipVersion') or '').strip()
 
     if not isinstance(input_devices, list):
-        raise Exception("Missing required parameters")
+        raise InputError("Missing required parameters")
 
     device_keys = list(dict.fromkeys(key.strip() for key in input_devices if isinstance(key, str) and key.strip()))
 
     if not all([device_keys, input_command, input_target, input_ip_version]):
-        raise Exception("Missing required parameters")
+        raise InputError("Missing required parameters")
 
     max_devices = max(int(current_app.config['CONFIG'].get('max_devices') or 0), 0)
 
     if max_devices and len(device_keys) > max_devices:
-        raise Exception(f"A query may target at most {max_devices} devices")
+        raise InputError(f"A query may target at most {max_devices} devices")
 
     target_valid, value = get_validated_target(input_target)
 
     if not target_valid:
-        raise Exception(f"{value}: '{input_target}'")
+        raise InputError(f"{value}: '{input_target}'")
 
     clean_target = str(value)
 
     command = current_app.config['COMMANDS'].get(input_command, {})
 
     if not command:
-        raise Exception("Device or command not found")
+        raise InputError("Device or command not found")
 
     selected_devices = {}
 
@@ -75,11 +75,11 @@ def execute():
 
         # Verify device exists
         if not device:
-            raise Exception("Device or command not found")
+            raise InputError("Device or command not found")
 
         # Verify command is allowed for this device
         if input_command not in device.get('commands', []):
-            raise Exception("Command not allowed for this device")
+            raise InputError("Command not allowed for this device")
 
         selected_devices[device_key] = device
 

@@ -1,9 +1,14 @@
 import logging, requests, ipaddress, validators
 from functools import wraps
-from flask import request, current_app
+from flask import request, current_app, jsonify
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
+
+
+# Raised when user input is rejected, so the message is safe to return to the client
+class InputError(Exception):
+    pass
 
 
 # Exception handler
@@ -12,10 +17,18 @@ def exception_handler(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except InputError as e:
+            return jsonify({'error': True, 'message': str(e)}), 400
+
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
-            send_webhook(current_app.config['CONFIG'].get('webhook')['url'], f"Exception: `{str(e)}`")
-            return None
+
+            webhook = current_app.config['CONFIG'].get('webhook')
+
+            if webhook:
+                send_webhook(webhook['url'], f"Exception: `{str(e)}`")
+
+            return jsonify({'error': True, 'message': 'An error occurred.'}), 500
     return wrapper
     
 
@@ -37,7 +50,6 @@ def send_webhook(webhook_url, text_data):
 
 
 # Get client IP address
-@exception_handler
 def get_client_ip():
     if not request.headers.getlist("X-Forwarded-For"):
         return request.remote_addr
@@ -45,7 +57,6 @@ def get_client_ip():
 
 
 # Validate if the target string is a valid IP address or domain
-@exception_handler
 def get_validated_target(target_string):
     if len(target_string) > 255:
         return False, "Input exceeds max length"

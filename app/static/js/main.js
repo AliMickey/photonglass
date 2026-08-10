@@ -312,7 +312,9 @@ const app = Vue.createApp({
                 });
         
                 if (!response.ok || !response.body) {
-                    this.finishPendingResults('Error: An error occurred.');
+                    // Rejected input comes back with a message worth showing; anything else stays generic
+                    const rejection = await response.json().catch(() => null);
+                    this.finishPendingResults(`Error: ${rejection?.message || 'An error occurred.'}`);
                     return;
                 }
 
