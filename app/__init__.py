@@ -16,6 +16,9 @@ limiter = Limiter(
 def create_app():
     app = Flask(__name__, instance_path="/instance")
 
+    # The only request body is a small JSON query, so anything larger is refused unread
+    app.config['MAX_CONTENT_LENGTH'] = 64 * 1024
+
     limiter.init_app(app)
     
     config_files = ['config.yaml', 'site.yaml', 'devices.yaml', 'commands.yaml']
