@@ -2,7 +2,7 @@
 const targetValidation = {
     v4: /^(\d{1,3}\.){3}\d{1,3}$/,
     v6: /^([0-9a-fA-F]{0,4}:){2,7}([0-9a-fA-F]{0,4}|\d{1,3}(\.\d{1,3}){3})$/,
-    hostname: /^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$/,
+    hostname: /^[\p{L}\p{N}][\p{L}\p{N}-]*(\.[\p{L}\p{N}][\p{L}\p{N}-]*)+$/u,
     mask: /^\d{1,3}$/
 };
 
@@ -169,7 +169,7 @@ const app = Vue.createApp({
 
             if (type === 'address') return isAddress && mask === undefined;
             if (type === 'prefix') return isAddress && (mask === undefined || targetValidation.mask.test(mask));
-            if (type === 'hostname') return targetValidation.hostname.test(this.targetIp);
+            if (type === 'hostname') return !isAddress && targetValidation.hostname.test(this.targetIp);
 
             return true;
         }
