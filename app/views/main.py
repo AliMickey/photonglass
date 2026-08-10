@@ -56,17 +56,20 @@ def execute():
     if max_devices and len(device_keys) > max_devices:
         raise InputError(f"A query may target at most {max_devices} devices")
 
-    target_valid, value = get_validated_target(input_target)
+    command = current_app.config['COMMANDS'].get(input_command, {})
+
+    if not command:
+        raise InputError("Device or command not found")
+
+    field = command.get('field') or {}
+    allow_private = current_app.config['CONFIG'].get('allow_private')
+
+    target_valid, value = get_validated_target(input_target, field, allow_private)
 
     if not target_valid:
         raise InputError(f"{value}: '{input_target}'")
 
     clean_target = str(value)
-
-    command = current_app.config['COMMANDS'].get(input_command, {})
-
-    if not command:
-        raise InputError("Device or command not found")
 
     selected_devices = {}
 

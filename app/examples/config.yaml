@@ -1,5 +1,6 @@
 theme: "auto"
 max_devices: 0
+allow_private: false
 
 #webhook:
 #  url: "https://hooks.slack.com/###"

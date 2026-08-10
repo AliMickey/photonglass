@@ -56,21 +56,54 @@ def get_client_ip():
     return request.headers.getlist("X-Forwarded-For")[0]
 
 
-# Validate if the target string is a valid IP address or domain
-def get_validated_target(target_string):
+# Validate the target string against the format its command takes
+def get_validated_target(target_string, field, allow_private=False):
     if len(target_string) > 255:
         return False, "Input exceeds max length"
-    
-    try:
-        ip_obj = ipaddress.ip_address(target_string)
 
-        if not ip_obj.is_global:
-            return False, "Non-global IP address provided"
+    target_type = str(field.get('type') or 'text').strip().lower()
 
-        return True, ip_obj
+    if target_type == 'address':
+        try:
+            value = ipaddress.ip_address(target_string)
 
-    except ValueError:
+        except ValueError:
+            return False, "Input is not a valid IP address"
+
+    elif target_type == 'prefix':
+        try:
+            network = ipaddress.ip_network(target_string, strict=False)
+
+        except ValueError:
+            return False, "Input is not a valid IP address or prefix"
+
+        # A target typed without a mask stays an address rather than becoming a host prefix
+        value = network if '/' in target_string else network.network_address
+
+    elif target_type == 'hostname':
         if not validators.domain(target_string):
-            return False, "Input is not a valid IP or domain"
+            return False, "Input is not a valid hostname"
 
-        return True, target_string
+        value = target_string
+
+    else:
+        try:
+            value = ipaddress.ip_address(target_string)
+
+        except ValueError:
+            if not validators.domain(target_string):
+                return False, "Input is not a valid IP or domain"
+
+            value = target_string
+
+    # Whatever reads as an address or a prefix is held to the config, a hostname or an AS
+    # number has nothing to reject
+    if not allow_private:
+        try:
+            if not ipaddress.ip_network(target_string, strict=False).is_global:
+                return False, "Non-global IP address provided"
+
+        except ValueError:
+            pass
+
+    return True, value

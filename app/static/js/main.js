@@ -1,3 +1,11 @@
+// Loose patterns for the target field, where the server has the final say
+const targetValidation = {
+    v4: /^(\d{1,3}\.){3}\d{1,3}$/,
+    v6: /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){0,7}:([0-9a-fA-F]{1,4}:){0,7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
+    hostname: /^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$/,
+    mask: /^\d{1,3}$/
+};
+
 const app = Vue.createApp({
     delimiters: ['${', '}'],
     data() {
@@ -135,17 +143,15 @@ const app = Vue.createApp({
         showIpVersionSelector() {
             if (!this.targetIp) return true;
 
-            const ipValidation = {
-                v4: /^(\d{1,3}\.){3}\d{1,3}$/,
-                v6: /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){0,7}:([0-9a-fA-F]{1,4}:){0,7}[0-9a-fA-F]{1,4}$|^::1$|^::$|^::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
-            };
+            // A prefix still names an address family, so match on the address on its own
+            const address = this.targetIp.split('/')[0];
 
-            if (ipValidation.v6.test(this.targetIp)) {
+            if (targetValidation.v6.test(address)) {
                 this.selectedIpVersion = 'IPv6';
                 return false;
             }
-            
-            if (ipValidation.v4.test(this.targetIp)) {
+
+            if (targetValidation.v4.test(address)) {
                 this.selectedIpVersion = 'IPv4';
                 return false;
             }
@@ -155,10 +161,17 @@ const app = Vue.createApp({
 
         isValidInput() {
             if (!this.currentCommand || !this.targetIp) return false;
-            if (this.showIpVersionSelector) return true;
-            
-            const { validation } = this.currentCommand.field ?? {};
-            return validation ? new RegExp(validation).test(this.targetIp) : true;
+
+            const { type } = this.currentCommand.field ?? {};
+
+            const [address, mask, extra] = this.targetIp.split('/');
+            const isAddress = extra === undefined && (targetValidation.v4.test(address) || targetValidation.v6.test(address));
+
+            if (type === 'address') return isAddress && mask === undefined;
+            if (type === 'prefix') return isAddress && (mask === undefined || targetValidation.mask.test(mask));
+            if (type === 'hostname') return targetValidation.hostname.test(this.targetIp);
+
+            return true;
         }
     },
 
