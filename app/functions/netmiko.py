@@ -90,11 +90,11 @@ def execute_command(device, command_format, target, ip_version):
 
         if not os.path.exists(key_path):
             logger.error(f"SSH file not found: {key_path} for {device_credentials['host']}")
-            yield {'error': True, 'message': 'Authentication failed'}
+            yield {'error': True}
             return
         
         device_config['use_keys'] = True
-        device_config['key_file'] =  os.path.join("/instance/ssh-keys", device_credentials['ssh_key'])
+        device_config['key_file'] = key_path
 
     else:
         device_config['password'] = device_credentials['password']
@@ -113,7 +113,7 @@ def execute_command(device, command_format, target, ip_version):
 
             if not produced_output:
                 logger.error(f"No response from {device_config['host']}")
-                yield {'error': True, 'message': 'No response from device'}
+                yield {'error': True}
                 return
 
             # Sent before the connection is torn down, which netmiko does slowly
@@ -121,12 +121,12 @@ def execute_command(device, command_format, target, ip_version):
 
     except NetmikoTimeoutException as e:
         logger.error(f"Timeout error on {device_config['host']}: {e}")
-        yield {'error': True, 'message': 'Timeout error'}
+        yield {'error': True}
     
     except NetmikoAuthenticationException as e:
         logger.error(f"Authentication failed for {device_config['host']}: {e}")
-        yield {'error': True, 'message': 'Authentication failed'}
+        yield {'error': True}
     
     except Exception as e:
         logger.error(f"An unexpected error occurred on {device_config['host']}: {e}")
-        yield {'error': True, 'message': 'Unexpected error'}
+        yield {'error': True}

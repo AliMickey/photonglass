@@ -352,13 +352,10 @@ const app = Vue.createApp({
                     if (!result || result.done) continue;
 
                     if (chunk.error) {
-                        result.error = `Error: ${chunk.message || 'An error occurred.'}`;
+                        result.error = 'Error: An error occurred.';
                         result.done = true;
                         pending--;
                     } else if (chunk.done) {
-                        if (!result.output) {
-                            result.error = 'Error: No output received from command.';
-                        }
                         result.done = true;
                         pending--;
                     } else {

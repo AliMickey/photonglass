@@ -99,7 +99,7 @@ def execute():
                     chunks.put((device_key, chunk))
             except Exception:
                 logger.exception(f"Failed to execute command on {device_key}")
-                chunks.put((device_key, {'error': True, 'message': 'Unexpected error'}))
+                chunks.put((device_key, {'error': True}))
             finally:
                 chunks.put((device_key, None))
 
