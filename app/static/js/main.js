@@ -76,13 +76,6 @@ const app = Vue.createApp({
     },
 
     computed: {
-        devicesList() {
-            return Object.entries(this.devices).map(([key, device]) => ({
-                key,
-                ...device
-            }));
-        },
-
         filteredCommands() {
             if (!this.selectedDevices.length) return [];
 

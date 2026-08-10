@@ -19,6 +19,9 @@ def create_app():
     # The only request body is a small JSON query, so anything larger is refused unread
     app.config['MAX_CONTENT_LENGTH'] = 64 * 1024
 
+    # Keep the config order when serialising, so devices reach the page as they are listed
+    app.json.sort_keys = False
+
     limiter.init_app(app)
     
     config_files = ['config.yaml', 'site.yaml', 'devices.yaml', 'commands.yaml']
