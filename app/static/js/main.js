@@ -183,8 +183,11 @@ const app = Vue.createApp({
             const params = new URLSearchParams(window.location.search);
             const requested = params.getAll('device').flatMap(value => value.split(','));
 
+            // A device actually keyed 'all' keeps its own meaning
+            const selectAll = requested.includes('all') && !('all' in this.devices);
+
             // Rebuilt from the device list so unknown keys are dropped and the configured order is kept
-            const devices = Object.keys(this.devices).filter(deviceKey => requested.includes(deviceKey));
+            const devices = Object.keys(this.devices).filter(deviceKey => selectAll || requested.includes(deviceKey));
 
             if (!devices.length) return;
 
