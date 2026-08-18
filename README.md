@@ -9,6 +9,7 @@ A modern, simple, distributed looking glass application that provides network in
 - **Custom Command Support**: Built dynamically to support any custom command.
 - **Easy Deployment**: Extremely easy to deploy and scale with multiple devices.
 - **Webhook Logging**: Log queries to a webhook channel (optional).
+- **Shareable Links**: Prefill the form from the URL, e.g. `/?device=sydney1&command=ping&target=1.1.1.1`.
 
 
 ## Setup (Docker)

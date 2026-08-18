@@ -34,6 +34,7 @@ const app = Vue.createApp({
 
     mounted() {
         this.updateThemeClass();
+        this.applyUrlParams();
         document.addEventListener('click', this.handleDocumentClick);
         document.addEventListener('keydown', this.handleKeydown);
     },
@@ -177,6 +178,29 @@ const app = Vue.createApp({
                    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
         },
 
+        // Prefills the form from the query string, so a query can be shared as a link
+        applyUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const requested = params.getAll('device').flatMap(value => value.split(','));
+
+            // Rebuilt from the device list so unknown keys are dropped and the configured order is kept
+            const devices = Object.keys(this.devices).filter(deviceKey => requested.includes(deviceKey));
+
+            if (!devices.length) return;
+
+            this.selectedDevices = this.maxDevices > 0 ? devices.slice(0, this.maxDevices) : devices;
+
+            const command = params.get('command');
+
+            // A command every selected device supports, or nothing at all
+            if (!this.filteredCommands.some(entry => entry.key === command)) return;
+
+            this.selectedCommand = command;
+            this.targetIp = (params.get('target') ?? '').trim();
+
+            if (params.get('version') === 'IPv6') this.selectedIpVersion = 'IPv6';
+        },
+
         toggleIpVersion() {
             this.selectedIpVersion = this.selectedIpVersion === 'IPv4' ? 'IPv6' : 'IPv4';
         },
@@ -295,6 +319,17 @@ const app = Vue.createApp({
             if (!this.isValidInput) {
                 return;
             }
+
+            const params = new URLSearchParams({
+                device: this.selectedDevices.join(','),
+                command: this.selectedCommand,
+                target: this.targetIp
+            });
+
+            if (this.selectedIpVersion === 'IPv6') params.set('version', 'IPv6');
+
+            // Kept out of the history stack so back still leaves the page rather than walking old queries
+            history.replaceState(null, '', `?${params}`);
         
             this.isLoading = true;
             this.resultOrder = [...this.selectedDevices];
