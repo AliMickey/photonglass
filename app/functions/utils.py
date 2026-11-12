@@ -1,9 +1,20 @@
-import logging, requests, ipaddress, validators
+import logging, re, requests, ipaddress, validators
 from functools import wraps
 from flask import request, current_app, jsonify
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
+
+# The characters an address, prefix or hostname can be made of and the length one runs to, as the target is typed into a device shell
+SAFE_TARGET = re.compile(r'[A-Za-z0-9:][A-Za-z0-9.:/-]{0,254}')
+
+# The one message a malformed target is refused with, by the type of target its command takes
+INVALID_TARGET = {
+    'address': "Input is not a valid IP address",
+    'prefix': "Input is not a valid IP address or prefix",
+    'hostname': "Input is not a valid hostname",
+    'text': "Input is not a valid IP or domain",
+}
 
 
 # Raised when user input is rejected, so the message is safe to return to the client
@@ -76,27 +87,39 @@ def get_validated_target(target_string, field, allow_private=False):
         return False, "Input exceeds max length"
 
     target_type = str(field.get('type') or 'text').strip().lower()
+    invalid = INVALID_TARGET.get(target_type, INVALID_TARGET['text'])
+
+    # An internationalised hostname is checked and sent as punycode, which leaves a target already in ASCII as it is
+    try:
+        target_string = target_string.encode('idna').decode('ascii')
+
+    except UnicodeError:
+        return False, invalid
+
+    # Refused as malformed before any parsing, as ipaddress accepts any text after a '%' as an IPv6 scope ID
+    if not SAFE_TARGET.fullmatch(target_string):
+        return False, invalid
 
     if target_type == 'address':
         try:
             value = ipaddress.ip_address(target_string)
 
         except ValueError:
-            return False, "Input is not a valid IP address"
+            return False, invalid
 
     elif target_type == 'prefix':
         try:
             network = ipaddress.ip_network(target_string, strict=False)
 
         except ValueError:
-            return False, "Input is not a valid IP address or prefix"
+            return False, invalid
 
         # A target typed without a mask stays an address rather than becoming a host prefix
         value = network if '/' in target_string else network.network_address
 
     elif target_type == 'hostname':
         if not validators.domain(target_string):
-            return False, "Input is not a valid hostname"
+            return False, invalid
 
         value = target_string
 
@@ -106,9 +129,16 @@ def get_validated_target(target_string, field, allow_private=False):
 
         except ValueError:
             if not validators.domain(target_string):
-                return False, "Input is not a valid IP or domain"
+                return False, invalid
 
             value = target_string
+
+    # Rebuild an address or prefix from its number, so the device gets text we wrote rather than what the user typed
+    if isinstance(value, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
+        value = type(value)(int(value))
+
+    elif isinstance(value, (ipaddress.IPv4Network, ipaddress.IPv6Network)):
+        value = type(value)((int(value.network_address), value.prefixlen))
 
     if not allow_private and not is_global_target(value):
         return False, "Non-global IP address provided"
