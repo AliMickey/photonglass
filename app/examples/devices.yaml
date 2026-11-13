@@ -3,6 +3,7 @@ sydney1:
   subtext: "Equinix SY3"
   country_code: "AU"
   type: "linux"
+#  exec: true # Optional, runs commands without an interactive shell, for hosts that refuse interactive logins
   commands:
     - ping
     - traceroute
@@ -12,4 +13,4 @@ sydney1:
     port: 22
     username: "USERNAME"
     password: "PASSWORD"
-#    ssh_key: "id_rsa" # Optional, replaces password
+#    ssh_key: "id_rsa" # Optional, replaces password but not username

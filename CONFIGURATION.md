@@ -32,4 +32,5 @@ Notes:
   - A command `format` may use the `{ip_version}` and `{target}` placeholders.
   - A command may set `field.type` to `address`, `prefix` or `hostname` to pick the target format it takes. `text` (the default) takes an IP address or a hostname.
   - A device may only run the commands listed under its `commands` key.
-  - Device credentials take either a `password` or an `ssh_key`, where `ssh_key` is a filename inside `/instance/ssh-keys`.
+  - Device credentials always need a `username`, plus either a `password` or an `ssh_key`, where `ssh_key` is a filename inside `/instance/ssh-keys`. The container runs as `appuser`, so the key file must be readable by that user, for example `sudo chown $(docker exec photonglass id -u) instance/ssh-keys/id_ed25519`.
+  - A device with `exec: true` runs each command over an SSH exec channel instead of an interactive shell. Use it for hosts that refuse interactive logins, such as a restricted shell set as the user's login shell or forced command that only runs the command passed to `ssh`.
